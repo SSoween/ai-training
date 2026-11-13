@@ -1,0 +1,1460 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>IA Premier Contact</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Syncopate:wght@400;700&display=swap">
+<style>
+/* Layout: a deep-space hero band, then a two-column "flight manual": sticky chapter rail + one readable column of modules. */
+:root{
+  --bg:#F3F5F9; --surface:#FFFFFF; --surface-2:#EAEEF5; --line:#D6DCE7;
+  --fg:#121A2B; --muted:#596479; --accent:#94681A; --accent-soft:rgba(148,104,26,.11);
+  --ok:#23896C; --mid:#3F6FC2; --low:#C4553F; --demo:#5E4BC4; --demo-soft:rgba(94,75,196,.10);
+  --ok-soft:rgba(35,137,108,.13); --mid-soft:rgba(63,111,194,.13); --low-soft:rgba(196,85,63,.13);
+  --hero-bg:#070B16; --hero-fg:#E9EDF5; --hero-muted:#98A3BA; --hero-accent:#E4B964; --hero-line:rgba(233,237,245,.14);
+  --f-display:"Syncopate","Arial Narrow",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0A0F1C; --surface:#10172A; --surface-2:#161F36; --line:#24304A;
+  --fg:#E6EAF3; --muted:#94A0B8; --accent:#E2B762; --accent-soft:rgba(226,183,98,.13);
+  --ok:#5CC8A8; --mid:#88AAEE; --low:#EE8C77; --demo:#A797F2; --demo-soft:rgba(167,151,242,.14);
+  --ok-soft:rgba(92,200,168,.15); --mid-soft:rgba(136,170,238,.15); --low-soft:rgba(238,140,119,.15);
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0A0F1C; --surface:#10172A; --surface-2:#161F36; --line:#24304A;
+  --fg:#E6EAF3; --muted:#94A0B8; --accent:#E2B762; --accent-soft:rgba(226,183,98,.13);
+  --ok:#5CC8A8; --mid:#88AAEE; --low:#EE8C77; --demo:#A797F2; --demo-soft:rgba(167,151,242,.14);
+  --ok-soft:rgba(92,200,168,.15); --mid-soft:rgba(136,170,238,.15); --low-soft:rgba(238,140,119,.15);
+  color-scheme:dark;}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+a{color:var(--accent);text-underline-offset:3px}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{font-family:var(--f-display);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;background:var(--hero-bg);color:var(--hero-fg);overflow:hidden;isolation:isolate}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;z-index:-2}
+.hero::after{content:"";position:absolute;z-index:-1;width:1100px;height:1100px;right:-420px;bottom:-930px;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,#0B1224 62%,transparent 63%);
+  box-shadow:0 -2px 0 rgba(228,185,100,.55),0 -18px 60px rgba(228,185,100,.18)}
+.hero-in{max-width:1180px;margin:0 auto;padding-block:64px 52px;display:grid;gap:22px}
+.hero .eyebrow{color:var(--hero-accent)}
+.hero h1{font-family:var(--f-display);font-weight:700;font-size:clamp(30px,6vw,60px);letter-spacing:.06em;line-height:1.05;text-transform:uppercase}
+.hero h1 span{display:block;font-weight:400;color:var(--hero-muted);font-size:.42em;letter-spacing:.3em;margin-top:14px}
+.hero .lede{max-width:60ch;color:var(--hero-muted);font-size:17px}
+.hero-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:8px}
+.hero select{background:rgba(255,255,255,.06);border:1px solid var(--hero-line);color:var(--hero-fg);border-radius:8px;padding:9px 12px;max-width:100%}
+.hero select option{color:#121A2B}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:8px;padding:9px 16px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-weight:500;font-size:14px;transition:transform .15s ease,background .15s ease,border-color .15s}
+.btn:hover{border-color:var(--accent)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.hero .btn{background:rgba(255,255,255,.06);border-color:var(--hero-line);color:var(--hero-fg)}
+.hero .btn.primary{background:var(--hero-accent);border-color:var(--hero-accent);color:#0A0F1C}
+.hero .stat{font-family:var(--f-mono);font-size:13px;color:var(--hero-muted)}
+.hero .stat b{color:var(--hero-fg);font-weight:500}
+
+/* ---------- SHELL ---------- */
+.shell{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;padding-block:40px 80px}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;display:grid;gap:14px;max-height:calc(100vh - 40px);overflow-y:auto;padding-right:4px}
+/* workflow stepper */
+.flow{list-style:none;margin:0;padding:0}
+.fstep{position:relative;padding-bottom:8px}
+.fstep::before{content:"";position:absolute;left:15px;top:34px;bottom:0;width:2px;background:var(--line);transition:background .5s ease}
+.fstep:last-child::before{display:none}
+.fstep.done::before{background:var(--accent)}
+.fstep a{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;align-items:center;text-decoration:none;color:var(--fg);border-radius:8px;padding:1px 6px 1px 0}
+.node{position:relative;width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--bg);display:grid;place-items:center;font-family:var(--f-mono);font-size:11px;color:var(--muted);transition:background .3s,border-color .3s,color .3s,box-shadow .3s}
+.fstep.free .node{border-style:dashed}
+.fstep.done .node{border-color:var(--accent);color:var(--accent)}
+.fstep.on .node{background:var(--accent);border-color:var(--accent);color:var(--bg);box-shadow:0 0 0 5px var(--accent-soft)}
+.fstep a:hover .node{border-color:var(--accent)}
+.node .lv{position:absolute;right:-4px;bottom:-4px;width:12px;height:12px;border-radius:50%;border:2px solid var(--bg);background:var(--line)}
+.node .lv.l3{background:var(--ok)}.node .lv.l2{background:var(--mid)}.node .lv.l1{background:var(--low)}
+.node .lv.need{box-shadow:0 0 0 1.5px var(--accent)}
+.ftxt{min-width:0;display:grid;line-height:1.25}
+.ftxt b{font-size:13.5px;font-weight:600;color:var(--muted);transition:color .2s}
+.ftxt small{font-family:var(--f-mono);font-size:10.5px;color:var(--muted);opacity:.85;margin-top:2px}
+.fstep.on .ftxt b,.fstep.done .ftxt b,.fstep a:hover .ftxt b{color:var(--fg)}
+.fstep.on .ftxt small{color:var(--accent);opacity:1}
+.fshort{display:none}
+/* barre de navigation mobile */
+.mrail{display:none;grid-template-columns:38px minmax(0,1fr) 38px;align-items:center;gap:8px}
+.mrail button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);font-size:18px;line-height:1;cursor:pointer;color:var(--fg)}
+.mrail button:disabled{opacity:.35;cursor:default}
+.mcur{position:relative;min-width:0;display:grid;line-height:1.2;text-align:center}
+.mcur b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mcur small{font-family:var(--f-mono);font-size:11px;color:var(--accent)}
+.mcur select{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+.mprog{grid-column:1/-1;height:3px;border-radius:2px;background:var(--line);overflow:hidden}
+.mprog i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s ease}
+.rail-extra{display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:12px}
+.rail-extra a{font-size:13px;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.rail-extra a:hover,.rail-extra a.on{color:var(--fg);border-color:var(--accent)}
+.dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--line);display:inline-block}
+.dot.l3{background:var(--ok);border-color:var(--ok)}
+.dot.l2{background:var(--mid);border-color:var(--mid)}
+.dot.l1{background:var(--low);border-color:var(--low)}
+.dot.need{box-shadow:0 0 0 2px var(--bg),0 0 0 3.5px var(--accent)}
+main{min-width:0;display:grid;gap:28px}
+
+/* ---------- PANELS & MODULES ---------- */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px}
+.mod{scroll-margin-top:24px;padding-block:28px 8px;border-top:1px solid var(--line);display:grid;gap:18px}
+.mod:first-of-type{border-top:0}
+.mod-head{display:grid;gap:8px;position:relative}
+.mod-body{display:grid;gap:18px}
+.notice{border:1px solid var(--low);background:var(--low-soft);border-radius:var(--r);padding:14px 18px;font-size:14.5px;line-height:1.5}
+.notice b{display:block;margin-bottom:2px}
+/* pliage */
+.chev{display:none;position:absolute;right:4px;top:2px;width:30px;height:30px;border:1px solid var(--line);border-radius:50%;transition:border-color .2s}
+.chev::after{content:"";position:absolute;left:10px;top:8px;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .25s ease}
+body.fold .chev,.jfold .chev{display:block}
+body.fold .mod.open .chev::after,.jfold[open] .chev::after{transform:translateY(4px) rotate(-135deg)}
+body.fold .mod-head{cursor:pointer;padding-right:46px}
+body.fold .mod-head:hover .chev{border-color:var(--accent)}
+body.fold .mod:not(.open){padding-block:14px 14px;gap:0}
+body.fold .mod:not(.open) .mod-body,body.fold .mod:not(.open) .lede{display:none}
+body.fold .mod:not(.open) h2{font-size:clamp(18px,2.2vw,21px)}
+body.fold .mod:not(.open) .mod-head:hover h2{color:var(--accent)}
+body.fold .mod.open .mod-body{animation:unfold .35s ease both}
+@keyframes unfold{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.jfold summary{list-style:none;cursor:pointer;position:relative;padding-right:46px}
+.jfold summary::-webkit-details-marker{display:none}
+.jfold summary:hover .chev{border-color:var(--accent)}
+.rail-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.viewtog{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px}
+.viewtog button{border:0;background:none;border-radius:999px;padding:3px 10px;font-size:12px;color:var(--muted);cursor:pointer}
+.viewtog button.on{background:var(--accent-soft);color:var(--fg)}
+.mod-head .num{font-family:var(--f-mono);font-size:13px;color:var(--accent);letter-spacing:.06em}
+.mod h2{font-size:clamp(24px,3.2vw,32px);font-weight:600;letter-spacing:-.01em;line-height:1.2}
+.mod .lede{font-size:18px;color:var(--muted)}
+.prose{display:grid;gap:14px;max-width:68ch}
+.prose h3{font-size:17px;font-weight:600;margin-top:8px}
+.prose ul{margin:0;padding-left:20px;display:grid;gap:6px}
+.prose strong{font-weight:600}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:14px 18px;border-radius:0 var(--r) var(--r) 0}
+.callout .eyebrow{display:block;margin-bottom:4px}
+.grid2,.grid3{display:grid;gap:12px}
+.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:6px;align-content:start;min-width:0}
+.tile h4{margin:0;font-size:15px;font-weight:600}
+.tile p{font-size:14px;color:var(--muted)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+.tbl table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+.tbl th,.tbl td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl th{font-weight:600;background:var(--surface-2);font-size:13px}
+.tbl tr:last-child td{border-bottom:0}
+pre.code{margin:0;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:16px;font-family:var(--f-mono);font-size:13px;line-height:1.55;overflow-x:auto;white-space:pre}
+.ba{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ba .tile:first-child{border-style:dashed}
+.ba .tag{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ba .tile:last-child .tag{color:var(--ok)}
+
+/* context stack */
+.stack{display:grid;gap:6px}
+.layer{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);cursor:default}
+.layer.fixed{background:var(--surface-2);border-style:dashed}
+.layer.fixed b{font-weight:500;color:var(--muted)}
+.stack-g{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.stack-g:first-child{margin-top:0}
+.stack-g.you{color:var(--accent)}
+.layer .i{font-family:var(--f-mono);font-size:12px;color:var(--accent)}
+.layer b{font-weight:600;font-size:15px}
+.layer small{display:block;color:var(--muted);font-size:13px}
+.layer .who{font-family:var(--f-mono);font-size:11px;color:var(--muted);text-align:right;white-space:nowrap}
+.layer.you{box-shadow:inset 3px 0 0 var(--accent)}
+
+/* widgets common */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:14px}
+.widget-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center}
+.wlabel{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.chipbtn{border:1px solid var(--line);background:var(--surface-2);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}
+.chipbtn:hover{border-color:var(--accent)}
+.chipbtn.on{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+
+/* next word */
+.nw-sentence{font-size:clamp(18px,2.6vw,22px);line-height:1.4}
+.nw-sentence .cur{display:inline-block;width:.55em;height:1.05em;vertical-align:-.15em;background:var(--accent);margin-left:4px;animation:blink 1s steps(1) infinite}
+.nw-sentence .pick{color:var(--accent);font-weight:600;border-bottom:2px solid var(--accent)}
+@keyframes blink{50%{opacity:0}}
+.bars{display:grid;gap:8px}
+.bar{display:grid;grid-template-columns:110px minmax(0,1fr) 44px;gap:10px;align-items:center;font-size:14px}
+.bar .track{height:12px;border-radius:6px;background:var(--surface-2);overflow:hidden}
+.bar .fill{height:100%;width:0;background:var(--accent);border-radius:6px;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.bar .pct{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:right}
+.bar.hit .fill{background:var(--ok)}
+
+/* tokens */
+.tok-input{width:100%;min-height:84px;resize:vertical;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2);padding:12px 14px;line-height:1.5}
+.tok-out{display:flex;flex-wrap:wrap;gap:3px;font-family:var(--f-mono);font-size:13px;line-height:1.3}
+.tok-out span{padding:3px 4px;border-radius:4px;white-space:pre;animation:pop .35s ease both}
+.tok-out span:nth-child(3n+1){background:var(--accent-soft)}
+.tok-out span:nth-child(3n+2){background:var(--mid-soft)}
+.tok-out span:nth-child(3n){background:var(--ok-soft)}
+@keyframes pop{from{transform:translateY(4px);opacity:.2}to{transform:none;opacity:1}}
+.kpis{display:flex;flex-wrap:wrap;gap:22px}
+.kpi b{display:block;font-family:var(--f-mono);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--muted)}
+
+/* fleet */
+.fleet{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.ship{text-align:left;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:8px;align-content:start;transition:border-color .2s,transform .2s}
+.ship:hover{transform:translateY(-2px)}
+.ship.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.ship .cls{font-family:var(--f-mono);font-size:11px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.ship .nm{font-weight:600;font-size:17px}
+.meter{display:grid;grid-template-columns:62px 1fr;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.pips{display:flex;gap:3px}
+.pips i{width:10px;height:6px;border-radius:2px;background:var(--surface-2);border:1px solid var(--line)}
+.pips i.f{background:var(--accent);border-color:var(--accent)}
+.ship-detail{font-size:15px;min-height:3em}
+.effort{display:grid;gap:10px}
+.effort input[type=range]{width:100%;accent-color:var(--accent)}
+.effort-scale{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.trail{display:flex;gap:5px;flex-wrap:wrap;min-height:12px}
+.trail i{width:8px;height:8px;border-radius:50%;background:var(--accent);opacity:.85;animation:pop .3s ease both}
+
+/* code couleur : Démo (violet, je montre) vs Essai (doré, à toi de jouer) */
+.widget,.motion{--accent:var(--demo);--accent-soft:var(--demo-soft);border-color:color-mix(in srgb,var(--demo) 35%,var(--line));box-shadow:inset 3px 0 0 var(--demo)}
+.widget .widget-top .wlabel{color:var(--demo);font-weight:500}
+.try{border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line));background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.try .wlabel{color:var(--accent);font-weight:500}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:4px;vertical-align:2px}
+.tag.t-demo{background:var(--demo-soft);color:var(--demo)}
+.tag.t-try{background:var(--accent-soft);color:var(--accent)}
+
+.total{display:grid;grid-template-columns:minmax(0,auto) minmax(80px,1fr) auto;gap:12px;align-items:center;border-top:1px solid var(--line);padding-top:12px}
+.tbar{height:10px;border-radius:5px;background:var(--surface-2);overflow:hidden}
+.tbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--demo),var(--low));border-radius:5px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.t-val{font-family:var(--f-mono);font-size:20px;font-weight:500;font-variant-numeric:tabular-nums;min-width:3.5ch;text-align:right}
+@media (max-width:560px){.total{grid-template-columns:minmax(0,1fr) auto}.total .wlabel{grid-column:1/-1}}
+
+/* presented bullets */
+.points{display:grid;gap:10px;padding:0;margin:0;list-style:none}
+.points li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:12px;font-size:18px;line-height:1.45}
+.points li::before{content:"";width:8px;height:8px;margin-top:10px;transform:rotate(45deg);background:var(--accent)}
+.points b{font-weight:600}
+.more{border-top:1px solid var(--line);padding-top:10px}
+.more summary{cursor:pointer;font-family:var(--f-mono);font-size:12px;color:var(--muted);letter-spacing:.04em}
+.more summary:hover{color:var(--fg)}
+.more .prose{margin-top:12px}
+/* modes */
+.modes{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.mode{flex:1 1 140px;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:2px;background:var(--surface)}
+.mode b{font-size:17px;font-weight:600}
+.mode.on{box-shadow:inset 3px 0 0 var(--accent)}
+.mode.on .wlabel{color:var(--accent)}
+.arrow{flex:0 0 22px;height:2px;background:var(--line);position:relative}
+.arrow::after{content:"";position:absolute;right:-1px;top:-4px;border-left:7px solid var(--line);border-top:5px solid transparent;border-bottom:5px solid transparent}
+/* checklist */
+.checklist{border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:grid;gap:12px;background:var(--surface)}
+.checklist ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 24px}
+.checklist li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;font-size:15px;line-height:1.4}
+.checklist li span{min-width:0}
+.checklist li b{display:block;font-weight:600}
+.checklist li small{display:block;font-size:14px;color:var(--muted)}
+.checklist li::before{content:"✓";width:18px;height:18px;border:1.5px solid var(--accent);border-radius:4px;color:var(--accent);font-size:12px;display:grid;place-items:center;margin-top:1px}
+/* motion placeholder */
+.motion{display:grid;grid-template-columns:180px minmax(0,1fr);gap:16px;align-items:center;border:1px solid var(--line);border-radius:14px;padding:10px 14px 10px 12px;background:var(--surface)}
+.motion .play{width:38px;height:38px;margin:-19px 0 0 -19px}
+.motion .play::after{left:14px;top:10px;border-left-width:12px;border-top-width:9px;border-bottom-width:9px}
+.motion-stage{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:10px;background:var(--hero-bg);overflow:hidden}
+.orb{position:absolute;width:38%;aspect-ratio:1;left:31%;top:12%;border-radius:50%;border:1px solid rgba(228,185,100,.45);animation:orbit 9s linear infinite}
+.orb.o2{width:62%;left:19%;top:-14%;border-color:rgba(233,237,245,.16);animation-duration:16s;animation-direction:reverse}
+.orb::after{content:"";position:absolute;width:6px;height:6px;border-radius:50%;background:var(--hero-accent);top:-3px;left:calc(50% - 3px)}
+.play{position:absolute;left:50%;top:50%;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;border:1.5px solid var(--hero-line);background:rgba(7,11,22,.6)}
+.play::after{content:"";position:absolute;left:20px;top:15px;border-left:16px solid var(--hero-fg);border-top:11px solid transparent;border-bottom:11px solid transparent}
+@keyframes orbit{to{transform:rotate(360deg)}}
+.motion-cap{display:grid;gap:4px}
+.motion-cap b{font-size:17px;font-weight:600}
+
+/* context demo */
+.ctx-in{display:grid;gap:4px;border-left:2px solid var(--line);padding-left:12px}
+.ctx-out{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;font-size:15px;line-height:1.55;animation:pop .4s ease both}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(7,auto);align-items:center;gap:8px;overflow-x:auto;padding-bottom:4px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;min-width:130px;display:grid;gap:4px}
+.step b{font-size:14px}
+.step small{font-size:12px;color:var(--muted);line-height:1.4}
+.gate{display:grid;justify-items:center;gap:4px;font-family:var(--f-mono);font-size:10px;color:var(--ok);text-transform:uppercase;letter-spacing:.06em;text-align:center}
+.gate i{width:18px;height:18px;transform:rotate(45deg);border:2px solid var(--ok);background:var(--ok-soft);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px var(--ok-soft)}}
+
+/* try-it + controls */
+.try{border:1px dashed var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:8px}
+.try-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.try p{font-family:var(--f-mono);font-size:13.5px;line-height:1.55}
+.copy{border:1px solid var(--line);background:var(--surface-2);border-radius:6px;padding:4px 10px;font-size:12px;cursor:pointer}
+.keys{display:grid;gap:8px;padding:0;margin:0;list-style:none}
+.keys li{display:grid;grid-template-columns:18px 1fr;gap:10px;font-size:15px}
+.keys li::before{content:"";width:8px;height:8px;margin-top:9px;transform:rotate(45deg);background:var(--accent)}
+.cockpit{background:var(--surface-2);border-radius:14px;padding:18px;display:grid;gap:14px}
+.cockpit-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lvl{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px 6px 10px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:background .15s,border-color .15s}
+.lvl[data-v="3"].on{background:var(--ok-soft);border-color:var(--ok)}
+.lvl[data-v="2"].on{background:var(--mid-soft);border-color:var(--mid)}
+.lvl[data-v="1"].on{background:var(--low-soft);border-color:var(--low)}
+.needbtn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px}
+.needbtn.on{border-color:var(--accent);background:var(--accent-soft)}
+.note{width:100%;min-height:70px;resize:vertical;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:10px 12px;font-size:14px;line-height:1.5}
+.note-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);gap:10px}
+
+/* crew */
+.crew-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:end}
+.crew-head h2{font-size:22px;font-weight:600}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.sum{border:1px solid var(--line);border-radius:var(--r);padding:12px;display:grid;gap:6px;min-width:0}
+.sum .t{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stackbar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--surface-2)}
+.stackbar i{display:block;height:100%;transition:width .6s ease}
+.stackbar .s3{background:var(--ok)}.stackbar .s2{background:var(--mid)}.stackbar .s1{background:var(--low)}
+.sum .c{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.matrix{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r)}
+.matrix table{border-collapse:collapse;width:100%;font-size:13px}
+.matrix th,.matrix td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:center;white-space:nowrap}
+.matrix th{font-weight:600;font-size:12px;color:var(--muted);background:var(--surface-2)}
+.matrix td:first-child,.matrix th:first-child{text-align:left;position:sticky;left:0;background:var(--surface);z-index:1}
+.matrix th:first-child{background:var(--surface-2)}
+.matrix tr:last-child td{border-bottom:0}
+.matrix tr.me td:first-child{font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.empty{border:1px dashed var(--line);border-radius:var(--r);padding:22px;text-align:center;color:var(--muted);font-size:14px}
+.admin{border-top:1px solid var(--line);padding-top:14px}
+.admin summary{cursor:pointer;font-size:14px;font-weight:500}
+.form{display:grid;gap:10px;margin-top:12px}
+.form label{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+.form input{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:9px 12px;width:100%}
+.form .row{display:flex;flex-wrap:wrap;gap:8px}
+.linkrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.linkrow input{flex:1 1 240px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:9px 12px;min-width:0}
+.deliv{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px}
+
+.next{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.src{display:grid;gap:8px}
+.src a{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 16px;border:1px solid var(--line);border-radius:var(--r);text-decoration:none;color:var(--fg);background:var(--surface);transition:border-color .15s}
+.src a:hover{border-color:var(--accent)}
+.src small{display:block;color:var(--muted);font-size:13px}
+.src .k{font-family:var(--f-mono);font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.06em}
+.journal-list{display:grid;gap:10px}
+.jitem{border-left:2px solid var(--line);padding:4px 0 4px 14px}
+.jitem b{font-size:14px}
+.jitem p{font-size:14px;color:var(--muted);white-space:pre-wrap}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:8px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:20}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal{position:fixed;inset:0;background:rgba(5,8,16,.6);display:grid;place-items:center;z-index:30;padding:16px}
+.modal-box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;width:min(640px,100%);display:grid;gap:12px}
+.modal-box textarea{width:100%;min-height:260px;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:10px}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:24px;padding-block:20px 60px}
+  .rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:block;overflow:visible;padding-block:8px;max-height:none;border-bottom:1px solid var(--line)}
+  .rail-top,.rail-extra{display:none}
+  .rail{scrollbar-width:none}.rail::-webkit-scrollbar{display:none}
+  .mod{scroll-margin-top:72px}
+  .flow{display:none}
+  .mrail{display:grid}
+  .fstep{padding:0 18px 0 0}
+  .fstep::before{left:32px;right:0;top:15px;bottom:auto;width:auto;height:2px}
+  .fstep a{grid-template-columns:32px auto;gap:6px;white-space:nowrap}
+  .ftxt{display:none}
+  .fstep.on .fshort{display:inline;font-size:13px;font-weight:600;position:relative;z-index:1;background:var(--bg);padding-right:6px}
+  .fleet{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .next,.grid3{grid-template-columns:minmax(0,1fr)}
+  .motion{grid-template-columns:140px minmax(0,1fr)}
+}
+@media (max-width:560px){
+  .panel{padding:18px}
+  .grid2,.ba{grid-template-columns:minmax(0,1fr)}
+  .bar{grid-template-columns:86px minmax(0,1fr) 40px}
+  .needbtn{margin-left:0}
+  .pipe{grid-template-columns:minmax(0,1fr);justify-items:stretch}
+  .gate{grid-auto-flow:column;justify-content:start}
+  .checklist ul{grid-template-columns:minmax(0,1fr)}
+  .arrow{display:none}
+  .points li{font-size:16.5px}
+  .layer{grid-template-columns:22px minmax(0,1fr)}
+  .layer .who{grid-column:2;text-align:left}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{.hero canvas,.rail,.cockpit button,.hero-bar,.copy,.admin{display:none!important}.shell{display:block}.mod{break-inside:avoid-page}}
+
+/* =====================================================================
+   SKIN « COCKPIT RÉTRO » — même famille que l'AI Multiverse (sans images)
+   Bloc autonome : le supprimer rend l'ancien look. Une seule ambiance sombre, voulue.
+   Coins nets ou biseautés, crochets d'angle, grille technique, commandes biseautées,
+   encre crème sur noir profond ; cyan, violet, or réservés aux statuts.
+   ===================================================================== */
+:root,:root:not([data-theme="light"]),:root[data-theme="dark"],:root[data-theme="light"]{
+  --bg:#08080F; --surface:#14151E; --surface-2:#1E2030;
+  --line:rgba(239,231,214,.16); --line-2:rgba(239,231,214,.28);
+  --fg:#F0E8D8; --muted:#B9B2A3; --faint:#7D786C;
+  --accent:#F3C76E; --accent-soft:rgba(243,199,110,.12);
+  --ok:#7FD8A4; --mid:#6CC3E6; --low:#F29A8E;
+  --ok-soft:rgba(127,216,164,.14); --mid-soft:rgba(108,195,230,.14); --low-soft:rgba(242,154,142,.14);
+  --demo:#B79EF4; --demo-soft:rgba(183,158,244,.13);
+  --hero-bg:#08080F; --hero-fg:#F0E8D8; --hero-muted:#B9B2A3; --hero-accent:#F3C76E; --hero-line:rgba(239,231,214,.20);
+  --cut:7px; --bk:color-mix(in srgb,var(--fg) 46%,transparent); --grid:color-mix(in srgb,var(--fg) 3.5%,transparent);
+  color-scheme:dark;
+}
+html{background:var(--bg)}
+body{
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(ellipse 60% 45% at 85% 0%,rgba(194,71,158,.10),transparent 70%),
+    radial-gradient(ellipse 45% 35% at 0% 100%,rgba(46,158,154,.08),transparent 70%),
+    radial-gradient(1px 1px at 37px 41px,rgba(240,232,216,.45) 50%,transparent 55%),
+    radial-gradient(1px 1px at 151px 97px,rgba(240,232,216,.25) 50%,transparent 55%),
+    radial-gradient(1.5px 1.5px at 211px 183px,rgba(243,199,110,.35) 50%,transparent 55%);
+  background-size:100% 100%,100% 100%,260px 260px,310px 310px,370px 370px;
+  background-attachment:fixed,fixed,scroll,scroll,scroll;
+}
+/* scanlines très légères */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:95;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.2) 0 1px,transparent 1px 3px);opacity:.4}
+@media print,(prefers-contrast:more){body::after{display:none}}
+
+/* Héros : ciel magenta / sarcelle, ligne d'horizon crème */
+.hero{background:radial-gradient(ellipse 70% 90% at 90% 0%,rgba(194,71,158,.16),transparent 65%),radial-gradient(ellipse 50% 70% at 0% 100%,rgba(46,158,154,.12),transparent 70%),var(--hero-bg);border-bottom:1px solid var(--line)}
+.hero::after{box-shadow:0 -1px 0 rgba(240,232,216,.45),0 -16px 60px rgba(194,71,158,.18)}
+.hero .eyebrow,.eyebrow{font-family:var(--f-mono);letter-spacing:.2em;font-size:12px}
+.hero .eyebrow::before{content:"// ";color:var(--hero-muted)}
+.hero h1,.hero .lede{text-shadow:0 2px 14px rgba(0,0,0,.6)}
+
+/* 1. Coins nets à la place des formes « app » (points, étoiles, nœuds et boutons ronds restent ronds) */
+.panel,.callout,.tile,.tbl,pre.code,.layer,.widget,.bar .track,.tok-input,.tok-out span,.ship,.step,.try,.copy,.cockpit,
+.note,.sum,.matrix,.empty,.form input,.linkrow input,.src a,.toast,.modal-box,.modal-box textarea,.rail-extra a,.viewtog,.viewtog button,
+.mode,.checklist,.motion,.motion-stage,.tag,.notice,.ctx-out,.fstep a,.hero select,.chipbtn,.lvl,.needbtn,.mrail button,.more summary{border-radius:2px}
+.stackbar,.tbar,.tbar i,.bar .fill,.mprog,.mprog i,.pips i{border-radius:1px}
+.checklist li::before{border-radius:1px}
+
+/* 2. Surfaces encadrées : crochets d'angle + grille technique discrète */
+.panel,.widget,.motion,.checklist,.cockpit,.try{
+  background-image:linear-gradient(var(--bk),var(--bk)),linear-gradient(var(--bk),var(--bk)),linear-gradient(var(--bk),var(--bk)),linear-gradient(var(--bk),var(--bk)),linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:16px 1.5px,1.5px 16px,16px 1.5px,1.5px 16px,24px 24px,24px 24px;
+  background-position:left top,left top,right bottom,right bottom,0 0,0 0;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,repeat,repeat;
+  background-origin:border-box}
+.panel{background-color:color-mix(in srgb,var(--surface) 88%,transparent)}
+.widget,.motion{--bk:color-mix(in srgb,var(--demo) 70%,transparent);background-color:color-mix(in srgb,var(--surface) 92%,transparent)}
+.try{--bk:color-mix(in srgb,var(--accent) 75%,transparent);background-color:color-mix(in srgb,var(--accent) 6%,var(--surface))}
+.cockpit{background-color:var(--surface-2)}
+.checklist{background-color:var(--surface)}
+
+/* 3. Lignes techniques : séparateurs qui s'effacent aux extrémités, losange sous les titres de section */
+.mod{border-top:1px solid;border-image:linear-gradient(90deg,transparent,var(--line-2) 12%,var(--line-2) 88%,transparent) 1}
+.mod:first-of-type{border-top:0}
+.crew-head{position:relative;padding-bottom:12px;border-bottom:1px solid;border-image:linear-gradient(90deg,transparent,var(--line-2) 10%,var(--line-2) 90%,transparent) 1}
+.crew-head::after{content:"";position:absolute;left:50%;bottom:-4px;width:7px;height:7px;transform:translateX(-50%) rotate(45deg);border:1px solid var(--line-2);background:var(--surface)}
+.rail-extra,.admin,.total,.more{border-image:linear-gradient(90deg,transparent,var(--line-2) 14%,var(--line-2) 86%,transparent) 1}
+
+/* 4. Typographie « données » : libellés élargis, préfixe de code, interrupteurs façon console */
+.wlabel,.mod-head .num,.ftxt small,.mcur small{letter-spacing:.16em}
+.widget-top .wlabel::before,.try-top .wlabel::before,.cockpit-row>.wlabel::before,.checklist>.wlabel::before{content:"// ";color:var(--faint);letter-spacing:0}
+.chipbtn,.lvl,.needbtn,.viewtog button,.copy,.rail-extra a,.tag{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase}
+.mod h2,.crew-head h2,#jTitle{font-family:var(--f-display);font-weight:700;letter-spacing:.02em;text-transform:uppercase;font-size:clamp(19px,2.6vw,25px)}
+body.fold .mod:not(.open) h2{font-size:clamp(15px,1.9vw,18px)}
+
+/* 5. Commandes biseautées, translucides, éclairées au survol ; la principale porte un chevron */
+.btn{--bc:var(--fg);--fill:10%;border:0;border-radius:0;font-family:var(--f-mono);font-weight:500;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--bc);
+  clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut));
+  box-shadow:inset 0 0 0 1px var(--bc);transition:box-shadow .15s,color .15s;
+  background:linear-gradient(135deg,transparent calc(50% - .8px),var(--bc) calc(50% - .8px) calc(50% + .8px),transparent calc(50% + .8px)) left top/var(--cut) var(--cut) no-repeat,
+             linear-gradient(135deg,transparent calc(50% - .8px),var(--bc) calc(50% - .8px) calc(50% + .8px),transparent calc(50% + .8px)) right bottom/var(--cut) var(--cut) no-repeat,
+             color-mix(in srgb,var(--bc) var(--fill),transparent)}
+.btn:hover{--fill:20%;box-shadow:inset 0 0 0 1px var(--bc),inset 0 0 16px color-mix(in srgb,var(--bc) 30%,transparent)}
+.btn.primary{--bc:var(--accent);color:var(--accent);background-color:transparent}
+.btn.primary::before{content:"\203A";margin-right:7px;font-weight:600}
+.hero .btn{--bc:var(--hero-fg);color:var(--hero-fg)}
+.hero .btn.primary{--bc:var(--hero-accent);color:var(--hero-accent)}
+.btn:disabled{opacity:.55;cursor:default}
+.chipbtn.on,.viewtog button.on{clip-path:polygon(5px 0,100% 0,100% calc(100% - 5px),calc(100% - 5px) 100%,0 100%,0 5px);border-radius:0}
+.viewtog button.on{background:var(--fg);color:var(--bg)}
+.widget .chipbtn.on{background:var(--demo);border-color:var(--demo);color:var(--bg)}
+
+/* 6. Voyants : niveaux et « besoin d'infos » s'allument quand ils sont actifs */
+.lvl.on .dot,.needbtn.on .dot{filter:drop-shadow(0 0 4px currentColor)}
+.lvl[data-v="3"].on{color:var(--ok)}.lvl[data-v="2"].on{color:var(--mid)}.lvl[data-v="1"].on{color:var(--low)}
+.lvl.on{box-shadow:inset 3px 0 0 currentColor}
+.needbtn.on{color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.lvl.on,.needbtn.on{font-weight:500}
+.lvl.on i,.needbtn.on i{color:inherit}
+.fstep.on .node{box-shadow:0 0 0 4px var(--accent-soft),0 0 14px color-mix(in srgb,var(--accent) 45%,transparent)}
+.node .lv.l3{box-shadow:0 0 5px var(--ok)}.node .lv.l2{box-shadow:0 0 5px var(--mid)}.node .lv.l1{box-shadow:0 0 5px var(--low)}
+
+/* 7. Biseau sur tout ce qui est encadré (Chrome, Edge 139+ et l'app Claude) ; ailleurs, coins nets */
+@supports (corner-shape: bevel){
+  .panel,.widget,.motion,.checklist,.cockpit,.try,.tile,.tbl,.layer,.ship,.step,.mode,.sum,.matrix,.callout,pre.code,.ctx-out,.notice,.empty,.toast,.modal-box,.src a,
+  .note,.tok-input,.form input,.linkrow input,.hero select,.lvl,.needbtn,.chipbtn,.copy,.tag,.rail-extra a,.mrail button{corner-shape:bevel}
+  .panel,.widget,.motion,.checklist,.matrix,.modal-box{border-radius:14px 0 14px 0}
+  .cockpit,.try,.tile,.tbl,.layer,.ship,.step,.mode,.sum,.callout,pre.code,.ctx-out,.notice,.empty,.toast,.src a{border-radius:10px 0 10px 0}
+  .note,.tok-input,.form input,.linkrow input,.hero select{border-radius:8px 0 8px 0}
+  .lvl,.needbtn,.chipbtn,.copy,.rail-extra a,.mrail button{border-radius:6px 0 6px 0}
+  .tag{border-radius:4px 0 4px 0}
+  .panel,.widget,.motion,.checklist,.cockpit,.try{background-position:right top,right top,left bottom,left bottom,0 0,0 0}
+}
+
+/* 8. Détails */
+.callout{background:color-mix(in srgb,var(--accent) 7%,var(--surface));border-left:0;box-shadow:inset 3px 0 0 var(--accent)}
+.matrix th,.tbl th{font-family:var(--f-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+.toast{background:var(--surface-2);color:var(--fg);border:1px solid var(--line-2);font-family:var(--f-mono);font-size:13px}
+.notice{background:color-mix(in srgb,var(--low) 10%,var(--surface));box-shadow:inset 3px 0 0 var(--low);border-color:color-mix(in srgb,var(--low) 50%,transparent)}
+a{color:var(--mid)}
+.src .k,.stack-g.you,.mod-head .num{color:var(--accent)}
+.rail{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+body::before{background:var(--bg)}
+
+.widget,.motion,.try{box-shadow:none}
+
+/* correctif : les boutons pleins d'origine (héros, principal) gardaient leur fond doré sous un texte doré */
+.btn,.btn.primary,.hero .btn,.hero .btn.primary{border:0;
+  background:linear-gradient(135deg,transparent calc(50% - .8px),var(--bc) calc(50% - .8px) calc(50% + .8px),transparent calc(50% + .8px)) left top/var(--cut) var(--cut) no-repeat,
+             linear-gradient(135deg,transparent calc(50% - .8px),var(--bc) calc(50% - .8px) calc(50% + .8px),transparent calc(50% + .8px)) right bottom/var(--cut) var(--cut) no-repeat,
+             color-mix(in srgb,var(--bc) var(--fill),transparent)}
+.btn.primary,.hero .btn.primary{--fill:16%}
+.btn:disabled,.hero .btn:disabled{opacity:.8}
+
+/* Mode autonome (hors claude.ai) : pas de suivi d'équipage partagé */
+.solo #crew,.solo #joinBtn,.solo #heroStat,.solo #sessionSel,.solo .rail-extra a[data-id="crew"],
+.solo [data-widget="sessionlink"],.solo [data-widget="mylink"],.solo .notice{display:none!important}
+</style>
+
+</head>
+<body>
+<header class="hero gut" id="top">
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <div class="hero-in">
+    <div class="eyebrow">Training IA</div>
+    <h1>Premier contact<span>L'IA au quotidien avec Claude</span></h1>
+    <p class="lede">Comprendre comment l'IA fonctionne, s'en servir avec méthode, et garder la main sur ce qu'elle produit. Une session pour démarrer, pas pour tout savoir.</p>
+    <div class="hero-bar">
+      <label class="sr" for="sessionSel" style="position:absolute;left:-9999px">Session</label>
+      <select id="sessionSel" aria-label="Session de training"></select>
+      <button class="btn primary" id="joinBtn" type="button">Rejoindre l'équipage</button>
+      <button class="btn" id="exportBtn" type="button">Exporter mon dossier</button>
+      <span class="stat" id="heroStat"><b>0</b> à bord</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell gut">
+  <nav class="rail" id="rail" aria-label="Chapitres"></nav>
+  <main id="main">
+    <div class="notice" id="notice" role="status" hidden></div>
+    <section class="panel" id="crew" aria-labelledby="crewTitle">
+      <div class="crew-head">
+        <div>
+          <div class="eyebrow">Tableau de bord de session</div>
+          <h2 id="crewTitle">Équipage</h2>
+        </div>
+        <div class="legend">
+          <span><i class="dot l3"></i>Clair</span>
+          <span><i class="dot l2"></i>À consolider</span>
+          <span><i class="dot l1"></i>Flou</span>
+          <span><i class="dot need"></i>Besoin d'infos</span>
+        </div>
+      </div>
+      <div class="deliv" id="sessionDeliv" style="margin-top:14px"></div>
+      <div class="summary" id="summary" style="margin-top:16px"></div>
+      <div id="matrixWrap" style="margin-top:16px"></div>
+      <details class="admin" id="admin" hidden style="margin-top:16px">
+        <summary>Paramètres de session (formateur)</summary>
+        <div class="form">
+          <label>Titre de la session<input id="aTitle" type="text"></label>
+          <label>Date<input id="aDate" type="text" placeholder="ex. 12 novembre 2026"></label>
+          <label>Lien vers l'artefact de travail / livrable de session<input id="aDeliv" type="url" placeholder="https://claude.ai/…"></label>
+          <div class="row"><button class="btn primary" id="aSave" type="button">Enregistrer la session</button></div>
+          <label style="margin-top:10px">Nouvelle session (futur training)<input id="aNew" type="text" placeholder="ex. Training IA · Équipe X · Janvier 2027"></label>
+          <div class="row"><button class="btn" id="aCreate" type="button">Créer et ouvrir</button></div>
+        </div>
+      </details>
+    </section>
+    <div id="modules"></div>
+    <section class="panel" id="journal" aria-labelledby="jTitle">
+      <details class="jfold" id="jFold">
+      <summary><div class="eyebrow">Journal de bord</div>
+      <h2 id="jTitle" style="font-size:22px;font-weight:600;margin-top:6px">Ton dossier de fin de training</h2><span class="chev" aria-hidden="true"></span></summary>
+      <p class="muted" style="margin-top:8px;max-width:62ch">Tes niveaux, tes notes privées et l'essentiel de chaque notion, dans un fichier à garder, relire ou imprimer. Tes notes ne sont visibles que par toi.</p>
+      <div class="journal-list" id="jList" style="margin-top:16px"></div>
+      <div class="row" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px">
+        <button class="btn primary" id="dlHtml" type="button">Télécharger (HTML imprimable)</button>
+        <button class="btn" id="dlMd" type="button">Télécharger (Markdown)</button>
+        <button class="btn" id="cpMd" type="button">Copier en Markdown</button>
+      </div>
+      </details>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =====================================================================
+   CONTENU DU TRAINING
+   Pour ajouter une notion : copier un bloc { ... } et l'insérer à la
+   position voulue. Numérotation, workflow de gauche, suivi d'équipage
+   et export s'adaptent automatiquement.
+   - id      : unique, sans espace (clé des niveaux et des notes)
+   - title   : titre de l'étape          - notion : la notion couverte
+   - short   : libellé court (mobile, colonnes du tableau d'équipage)
+   - track   : true = suivi du niveau de compréhension + notes
+   - lede    : une phrase d'accroche
+   - points  : les bullets affichés en séance
+   - visual  : facultatif, démo ou graphique (<div data-widget="nom">)
+   - detail  : facultatif, approfondissement (replié en séance, inclus dans l'export)
+   - tryIt   : facultatif, prompt à essayer dans Claude
+   ===================================================================== */
+const MODULES = [
+{
+  id:"brief", title:"Briefing de mission", notion:"Mode d'emploi", short:"Briefing", track:false,
+  lede:"Un modèle mental juste, des réflexes d'usage, et le goût d'aller plus loin.",
+  points:[
+    "<b>Comprendre</b> : comment ça marche, pourquoi ça se trompe, ce que ça coûte",
+    "<b>Utiliser</b> : contexte, prompting, modèles, outils, Cowork",
+    "<b>Garder la main</b> : valider, livrer, juger",
+    "<span class=\"tag t-demo\">Démo</span> je montre · <span class=\"tag t-try\">Essai</span> à toi de jouer dans ton Claude",
+    "À chaque notion : ton niveau, « Besoin d'infos », tes notes privées",
+    "À la fin : exporte ton dossier personnel"
+  ],
+  visual:"", detail:"", tryIt:""
+},
+{
+  id:"aboutme", title:"Ton brief permanent", notion:"about_me · system prompt · mémoire", short:"about_me", track:true,
+  lede:"Claude lit beaucoup de choses avant ta question. Une partie, c'est toi qui l'écris.",
+  points:[
+    "<b>System prompt</b> : le cadre permanent et invisible (plateforme, organisation, toi)",
+    "<b>User prompt</b> : ta demande du moment",
+    "<b>Sans état</b> : aucune mémoire d'une conversation à l'autre, sauf ce qu'on lui redonne",
+    "<b>about_me</b> : rôle, contexte, vocabulaire, format attendu, règles",
+    "<b>Mémoire et projets</b> : ce qui persiste, espace par espace"
+  ],
+  visual:`
+  <div class="stack" aria-label="Ce que Claude lit avant de répondre">
+    <span class="stack-g">Fixé pour toi</span>
+    <div class="layer fixed"><span class="i">01</span><div><b>Instructions de la plateforme</b></div><span class="who">Anthropic</span></div>
+    <div class="layer fixed"><span class="i">02</span><div><b>Règles de l'organisation</b></div><span class="who">Ton organisation</span></div>
+    <span class="stack-g you">Ce que tu contrôles</span>
+    <div class="layer you"><span class="i">03</span><div><b>Tes préférences et ton about_me</b></div><span class="who">Permanent</span></div>
+    <div class="layer you"><span class="i">04</span><div><b>Projet et mémoire</b></div><span class="who">Par espace</span></div>
+    <div class="layer you"><span class="i">05</span><div><b>Fichiers et contexte fournis</b></div><span class="who">Par tâche</span></div>
+    <div class="layer you"><span class="i">06</span><div><b>Ton message (le prompt)</b></div><span class="who">Instantané</span></div>
+  </div>`,
+  detail:`
+  <p>Les couches 1 à 4 forment le <strong>system prompt</strong> : le cadre permanent, invisible dans la conversation. La couche 6 est le <strong>user prompt</strong>. Un bon cadre évite de tout réexpliquer à chaque fois.</p>
+  <p>Un modèle est <strong>sans état</strong> : d'une conversation à l'autre, il ne se souvient de rien, sauf de ce qu'on lui redonne (préférences, mémoire, projet, fichiers). C'est le rôle de l'about_me : ton brief de mission permanent.</p>
+  <pre class="code"># about_me — [Prénom], [Rôle]
+
+## Mon rôle
+[Rôle] au sein de [équipe]. Périmètre : [domaines, responsabilités].
+
+## Mon contexte
+Parties prenantes clés, rythmes (réunion hebdo, reporting mensuel), outils.
+
+## Mon vocabulaire
+Acronymes et termes maison : [liste]…
+
+## Comment je veux tes réponses
+Recommandation d'abord. Structuré, concis. Français pour moi,
+anglais pour tout livrable partagé.
+
+## Règles
+Ne jamais inventer un chiffre. Signaler toute incertitude.</pre>`,
+  tryIt:"Voici mon about_me [colle-le]. Relis-le comme un nouvel assistant qui doit travailler pour moi demain. Qu'est-ce qui te manque pour bien me comprendre ? Pose-moi au maximum 5 questions."
+},
+{
+  id:"llm", title:"Tout est statistique", notion:"LLM · prédiction", short:"LLM", track:true,
+  lede:"Un LLM prédit la suite la plus probable. Tout le reste en découle.",
+  points:[
+    "Entraîné sur d'immenses volumes de texte pour <b>prédire le morceau de mot suivant</b>",
+    "<b>Non-déterministe</b> : même prompt, réponses différentes, surtout si le prompt est léger",
+    "Une réponse <b>différente</b> n'est pas une réponse <b>fausse</b> : variation ≠ hallucination",
+    "Plus il y a de contexte, plus la bonne suite devient probable",
+    "<b>Date de coupure</b> : il ne connaît pas l'actualité récente",
+    "Il cherche le <b>plausible</b>, pas le vrai : racine des hallucinations"
+  ],
+  visual:`<div class="widget" data-widget="nextword" data-print="Démo : plus le contexte est riche, plus la suite la plus probable se détache."></div>`,
+  detail:`
+  <p>Il n'y a pas de base de connaissances interrogée : une suite de prédictions, morceau après morceau, d'une précision stupéfiante. Il tire au sort parmi les suites probables, d'où des réponses différentes à la même question.</p>
+  <p><strong>Biais d'entraînement</strong> : demande-lui un nombre « au hasard » plusieurs fois, les mêmes reviennent souvent. Ce qu'il produit reflète ce qu'il a lu.</p>
+  <p>Un LLM ne cherche pas la vérité, il cherche la suite la plus plausible. La plupart du temps, c'est la même chose. Pas toujours.</p>`,
+  tryIt:"Donne-moi un nombre au hasard entre 1 et 100. Puis explique-moi pourquoi ta réponse n'est probablement pas vraiment aléatoire."
+},
+{
+  id:"tokens", title:"L'unité de compte", notion:"Tokens · coûts", short:"Tokens", track:true,
+  lede:"Le modèle lit des morceaux de mots. C'est sa monnaie.",
+  points:[
+    "1 token ≈ un morceau de mot ; le <b>français</b> en consomme plus que l'anglais",
+    "Chaque token <b>lu et écrit</b> a un coût ; l'écriture coûte plus que la lecture",
+    "Plus le modèle est puissant, plus le token est cher",
+    "Notre usage a des <b>quotas</b> : Cowork et le thinking consomment davantage",
+    "<b>Repères</b> : une page ≈ 500-800 · PDF de 30 pages ≈ 20 000 · vidéo d'1 h ≈ 15 000 en transcription, ≈ 1 million en images"
+  ],
+  visual:`<div class="widget" data-widget="tokens" data-print="Démo : un texte est découpé en morceaux ; le français et le jargon consomment plus de tokens que l'anglais courant."></div>`,
+  detail:`
+  <div class="tbl"><table>
+    <thead><tr><th>Ordre de grandeur (indicatif)</th><th>Tokens</th></tr></thead>
+    <tbody>
+      <tr><td>Une phrase</td><td class="mono">20 à 40</td></tr>
+      <tr><td>Une page de texte</td><td class="mono">500 à 800</td></tr>
+      <tr><td>Un PDF de 30 pages</td><td class="mono">15 000 à 25 000</td></tr>
+      <tr><td>Replay vidéo d'1 h, transcription texte</td><td class="mono">≈ 12 000 à 18 000</td></tr>
+      <tr><td>Replay vidéo d'1 h, analysé image par image</td><td class="mono">≈ 950 000 (≈ 250 000 pour 15 min)</td></tr>
+      <tr><td>Fenêtre de contexte d'un modèle récent</td><td class="mono">plusieurs centaines de milliers</td></tr>
+    </tbody></table></div>
+  <p>Pour une vidéo, le format change tout : la transcription coûte environ 60 fois moins cher que l'analyse image par image. Repère image : ≈ 263 tokens par seconde de vidéo, selon la documentation Google Gemini ; Claude travaille, lui, à partir de la transcription ou d'images extraites. Dans la plupart des cas, la transcription suffit.</p>
+  <p>Les tokens mesurent à la fois la mémoire de travail (fenêtre de contexte), le coût et la consommation de quota. Contexte utile oui, contexte inutile non.</p>`,
+  tryIt:"Explique-moi ce qu'est un token avec une analogie du quotidien, puis estime combien de tokens consommerait la lecture d'un rapport mensuel de 12 pages."
+},
+{
+  id:"contexte", title:"Tout ce que Claude voit", notion:"Contexte", short:"Contexte", track:true,
+  lede:"Au moment de répondre, Claude ne voit que son contexte. Ce qui n'y est pas n'existe pas pour lui.",
+  points:[
+    "<b>Contexte</b> = instructions + about_me + historique + fichiers + ta question",
+    "<b>Trop peu</b> : réponse générique, ou inventée",
+    "<b>Trop</b> : bruit, coût, l'essentiel se noie",
+    "À chaque message, il relit tout : une longue conversation <b>dérive et oublie son début</b>",
+    "Un sujet par conversation ; un <b>résumé de passation</b> pour repartir"
+  ],
+  visual:`<div class="widget" data-widget="ctxdemo" data-print="Démo : la même demande à froid, avec le contexte de la tâche, avec l'about_me, puis noyée dans un dossier trop gros. La qualité monte avec le contexte utile, le coût monte avec le contexte inutile."></div>`,
+  detail:`
+  <p>Imagine un consultant brillant qui arrive chaque matin sans aucun souvenir, avec pour seule matière le dossier posé sur la table. La qualité de son travail dépend directement de la qualité de ce dossier.</p>
+  <p>Ce qui est permanent va dans l'about_me ou le projet, ce qui est ponctuel dans le prompt. Pointer vers le bon document plutôt que tout le dossier.</p>`,
+  tryIt:"Avant de répondre à ma demande, dis-moi quelles informations de contexte te manquent, et lesquelles parmi celles que je t'ai données ne te servent à rien."
+},
+{
+  id:"modeles", title:"Choisir son vaisseau", notion:"Modèles · thinking", short:"Modèles", track:true,
+  lede:"Tous les modèles ne se valent pas pour toutes les missions.",
+  points:[
+    "<b>Haiku</b> : rapide, économique · <b>Sonnet</b> : le quotidien",
+    "<b>Opus</b> : raisonnement complexe · <b>Fable</b> : le plus capable",
+    "<b>Thinking</b> : temps de réflexion avant de répondre, de low à max",
+    "<b>Coût total</b> = prix du token du modèle × tokens consommés, réflexion comprise",
+    "Règle : <b>commencer léger</b>, monter si la qualité ne suffit pas"
+  ],
+  visual:`<div class="widget" data-widget="fleet" data-print="Haiku : rapide et économique. Sonnet : polyvalent. Opus : raisonnement complexe. Fable : le plus capable."></div>
+  <div class="widget" data-widget="effort" data-print="Thinking : du niveau low (réponse directe) au niveau max (réflexion approfondie)."></div>`,
+  detail:`
+  <p>Le thinking (réflexion étendue) laisse au modèle un temps de raisonnement avant de répondre : utile pour une analyse d'impact ou un arbitrage, inutile pour reformuler un e-mail.</p>
+  <p>On ne sort pas le vaisseau amiral pour livrer une pizza. Disponibilité et réglages selon notre configuration Claude Enterprise.</p>`,
+  tryIt:"Voici trois tâches de ma semaine : [liste]. Pour chacune, recommande-moi un modèle et un niveau de réflexion, en justifiant en une phrase (qualité, vitesse, coût)."
+},
+{
+  id:"outils", title:"Sortir de sa bulle", notion:"Internet · artefacts", short:"Web & artefacts", track:true,
+  lede:"Avec des outils, Claude ne se limite plus à ce qu'il a appris.",
+  points:[
+    "Sans outils : seulement son entraînement et ce que tu lui donnes",
+    "<b>Recherche web</b> : les faits récents, au-delà de la date de coupure",
+    "Toujours <b>ouvrir et vérifier</b> les sources citées",
+    "<b>Artefacts</b> : pages, documents, présentations, tableaux de bord, animations",
+    "Vivants et partageables : on les fait évoluer, on les livre (comme cette page)"
+  ],
+  visual:`
+  <div class="motion" role="img" aria-label="Démo Motion à venir" data-widget="motion" data-print="Démo live Motion : une animation créée à partir d'un prompt.">
+    <div class="motion-stage"><span class="orb"></span><span class="orb o2"></span><span class="play" aria-hidden="true"></span></div>
+    <div class="motion-cap"><span class="eyebrow">Démo live · Motion</span><b>Une animation créée à partir d'un prompt</b><span class="muted">Présentée en séance</span></div>
+  </div>`,
+  detail:`
+  <p>Démonstration parlante : pose une question d'actualité recherche web désactivée, puis activée. Même modèle, réponse radicalement différente.</p>
+  <p>Les artefacts sont des livrables hébergés : documents, présentations, tableaux de bord, pages interactives, animations (Motion). On les itère avec Claude et on les partage par lien.</p>`,
+  tryIt:"Cherche sur le web les 3 dernières nouveautés de Claude, avec la source de chacune. Puis transforme ta réponse en une page artefact d'une page."
+},
+{
+  id:"cowork", title:"Le poste de pilotage", notion:"Cowork", short:"Cowork", track:true,
+  lede:"Dans Cowork, Claude ne répond plus seulement : il exécute.",
+  points:[
+    "<b>Chat</b> : une question, une réponse",
+    "<b>Projets</b> : instructions et fichiers permanents pour un sujet récurrent",
+    "<b>Cowork</b> : travaille sur tes fichiers, enchaîne les étapes, utilise des outils",
+    "On passe de la question à la <b>délégation</b> : brief, plan, exécution, contrôle",
+    "Plus puissant, plus gourmand : à réserver aux vraies tâches"
+  ],
+  visual:`
+  <div class="modes">
+    <div class="mode"><span class="wlabel">Chat</span><b>Répondre</b></div>
+    <span class="arrow" aria-hidden="true"></span>
+    <div class="mode"><span class="wlabel">Projets</span><b>Contextualiser</b></div>
+    <span class="arrow" aria-hidden="true"></span>
+    <div class="mode on"><span class="wlabel">Cowork</span><b>Exécuter</b></div>
+  </div>`,
+  detail:`
+  <p>Une image simple : le chat, c'est un échange radio avec la base. Cowork, c'est un membre d'équipage à bord, qui reçoit un ordre de mission, propose un plan, l'exécute et te rend compte.</p>
+  <p>Ta responsabilité devient le brief, les points de contrôle et la validation finale. Les mêmes principes valent pour Copilot et Ubichat.</p>`,
+  tryIt:"Je découvre Cowork. Explique-moi en 5 points ce que tu peux faire ici que tu ne peux pas faire dans un chat classique, avec un exemple concret pour mon métier : [décris ton rôle en une phrase]."
+},
+{
+  id:"demande", title:"Le meilleur prof d'IA", notion:"Demander à Claude", short:"Demander", track:true,
+  lede:"Demande à Claude ce que tu veux savoir faire dans Claude.",
+  points:[
+    "Avant de chercher un tuto, <b>demande</b>",
+    "Il peut ignorer ses fonctionnalités récentes : fais-lui <b>vérifier la doc officielle</b>",
+    "<b>Inverse le prompting</b> : fais-toi poser les questions avant qu'il produise",
+    "Demande-lui de <b>critiquer</b> ton prompt ou ton about_me"
+  ],
+  visual:`<div class="src" data-widget="asklist"></div>`,
+  detail:`<p>Une fois le réflexe pris, Claude devient ta première source pour apprendre Claude. Il ne connaît pas forcément ses dernières fonctionnalités par cœur (date de coupure), mais il peut consulter la documentation officielle et t'accompagner pas à pas.</p>`,
+  tryIt:"Avant de commencer, pose-moi les questions dont tu as besoin pour faire un excellent travail sur : [ta tâche]."
+},
+{
+  id:"limites", title:"Garder la main", notion:"Limites · human in the loop", short:"Limites", track:true,
+  lede:"L'IA produit vite et avec aplomb. La validation humaine reste non négociable.",
+  points:[
+    "<b>Hallucinations</b> : plausible mais faux, dit avec assurance",
+    "<b>Complaisance</b> : insiste à tort, il te donnera raison",
+    "<b>Mauvais prompt</b> = mauvais résultat",
+    "<b>Données</b> : outils approuvés ne veut pas dire tout partager",
+    "Le résultat est un <b>brouillon</b>, pas une décision"
+  ],
+  visual:`
+  <div class="pipe" aria-label="Boucle de validation">
+    <div class="step"><b>Brief</b><small>Minimal mais bon</small></div>
+    <div class="gate"><i></i>Plan validé</div>
+    <div class="step"><b>Production</b><small>Par étapes</small></div>
+    <div class="gate"><i></i>Relecture</div>
+    <div class="step"><b>Finition</b><small>Faits, ton</small></div>
+    <div class="gate"><i></i>Validation</div>
+    <div class="step"><b>Livraison</b><small>Assumée</small></div>
+  </div>`,
+  detail:`
+  <p><strong>Réflexes anti-hallucination</strong> : demander les sources et les ouvrir ; demander « qu'est-ce qui pourrait être faux ici ? » ; vérifier chaque chiffre ; autoriser explicitement « je ne sais pas ».</p>
+  <p><strong>Human in the loop</strong> : fournir un contenu minimal mais bon, valider les étapes intermédiaires, et au minimum une validation humaine avant livraison. Mentionner l'assistance IA quand on partage.</p>`,
+  tryIt:"Relis ta réponse précédente comme un auditeur sceptique. Liste ce qui pourrait être faux, inventé ou non vérifié, et dis-moi comment le vérifier."
+},
+{
+  id:"atelier", title:"Mission pratique", notion:"Atelier prompt", short:"Atelier", track:true,
+  lede:"Chacun écrit son prompt, l'exécute de son côté, et on compare les résultats.",
+  points:[
+    "Une même consigne pour tous, annoncée en séance",
+    "Chacun écrit <b>son</b> prompt et l'exécute dans <b>son</b> Claude",
+    "On compare : qu'est-ce qui explique les différences ?"
+  ],
+  visual:`
+  <div class="checklist" aria-label="À ne pas oublier dans un prompt">
+    <span class="wlabel">À ne pas oublier dans un prompt</span>
+    <ul>
+      <li><span><b>Contexte</b><small>qui tu es, la situation, pourquoi tu demandes</small></span></li>
+      <li><span><b>Objectif</b><small>le résultat attendu, en une phrase</small></span></li>
+      <li><span><b>Public</b><small>pour qui c'est</small></span></li>
+      <li><span><b>Données</b><small>les faits et fichiers utiles, et seulement ceux-là</small></span></li>
+      <li><span><b>Contraintes</b><small>longueur, ton, langue, ce qu'il faut éviter</small></span></li>
+      <li><span><b>Format</b><small>liste, tableau, document, artefact…</small></span></li>
+      <li><span><b>Exemple</b><small>un modèle de ce que tu veux, si tu en as un</small></span></li>
+      <li><span><b>Droit au doute</b><small>« si une info manque, demande ou signale-la »</small></span></li>
+      <li><span><b>Plan d'abord</b><small>pour une tâche longue, « propose un plan et attends ma validation »</small></span></li>
+    </ul>
+  </div>
+  <div class="deliv" data-widget="sessionlink"></div>
+  <div class="linkrow" data-widget="mylink"></div>`,
+  detail:`
+  <div class="ba">
+    <div class="tile"><span class="tag">Avant</span><p class="mono">Résume cette réunion.</p></div>
+    <div class="tile"><span class="tag">Après</span><p class="mono">Voici la transcription de la réunion d'équipe de mardi. Objectif : un compte rendu pour les absents. Format : décisions, actions (responsable, échéance), risques ouverts. 200 mots max, en anglais. Si une info manque, signale-la au lieu de l'inventer.</p></div>
+  </div>`,
+  tryIt:"Voici mon prompt : [colle-le]. Avant de l'exécuter, dis-moi ce qui manque ou ce qui est ambigu, puis propose une version améliorée."
+},
+{
+  id:"suite", title:"Ce n'est que le début", notion:"Prochaines étapes", short:"La suite", track:false,
+  lede:"Le premier contact est fait. L'univers qui s'ouvre est, à l'échelle de nos métiers, à peu près infini.",
+  points:[
+    "<b>Skills</b> : empaqueter une tâche répétable que Claude applique tout seul",
+    "<b>Tâches planifiées</b> : ça tourne et ça te prévient",
+    "<b>Projets et base de connaissances</b> : rendre le savoir de l'équipe explicite",
+    "<b>Connecteurs</b> : chercher l'information là où elle vit",
+    "<b>Agents et plugins</b> : des enchaînements autonomes, sous contrôle",
+    "<b>Défi 30 jours</b> : about_me finalisé, usage quotidien, une skill, une réussite partagée"
+  ],
+  visual:`
+  <div class="src">
+    <a href="https://anthropic.skilljar.com/claude-101" target="_blank" rel="noopener"><div><span class="k">Essentiel · Anthropic Academy</span><br>Claude 101</div><span aria-hidden="true">↗</span></a>
+    <a href="https://anthropic.skilljar.com/introduction-to-claude-cowork" target="_blank" rel="noopener"><div><span class="k">Essentiel · Anthropic Academy</span><br>Introduction to Claude Cowork</div><span aria-hidden="true">↗</span></a>
+    <a href="https://anthropic.skilljar.com/ai-fluency-framework-foundations" target="_blank" rel="noopener"><div><span class="k">Essentiel · Anthropic Academy</span><br>AI Fluency: Framework &amp; Foundations</div><span aria-hidden="true">↗</span></a>
+    <a href="https://anthropic.skilljar.com/ai-capabilities-and-limitations" target="_blank" rel="noopener"><div><span class="k">Approfondir · Anthropic Academy</span><br>AI Capabilities and Limitations</div><span aria-hidden="true">↗</span></a>
+    <a href="https://anthropic.skilljar.com/introduction-to-agent-skills" target="_blank" rel="noopener"><div><span class="k">Étape suivante · Anthropic Academy</span><br>Introduction to Agent Skills</div><span aria-hidden="true">↗</span></a>
+    <a href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank" rel="noopener"><div><span class="k">Référence · Documentation Claude</span><br>Prompt engineering overview</div><span aria-hidden="true">↗</span></a>
+  </div>`,
+  detail:`<p>Si tu découvres quelque chose, mets-le là où les autres peuvent le trouver : une réussite privée ne compte pas.</p>`,
+  tryIt:"Aide-moi à créer ma première skill : voici une tâche que je refais chaque semaine [décris-la]. Pose-moi d'abord tes questions."
+}
+];
+
+const LEVELS = [{v:3,label:"Clair"},{v:2,label:"À consolider"},{v:1,label:"Flou"}];
+const ASK = [
+  "Comment puis-je automatiser mon rapport hebdomadaire dans Cowork ? Donne-moi les étapes.",
+  "Quelle est la différence entre un projet, une skill et une tâche planifiée ? Quand utiliser chacun ?",
+  "Relis mon prompt et réécris-le pour qu'il soit plus précis. Explique ce que tu as changé.",
+  "Sur cette tâche, quelles sont tes limites ? Qu'est-ce que je dois absolument vérifier ?",
+  "Explique-moi [notion] comme à un collègue non technique, avec une analogie."
+];
+
+/* =====================================================================
+   ÉTAT ET STOCKAGE
+   ===================================================================== */
+const S = { db:null, user:null, uid:null, canEdit:false, sessions:[], sid:null, crew:[], myDoc:{}, notes:{}, names:{} };
+const $ = (s,el=document)=>el.querySelector(s);
+const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
+const tracked = ()=>MODULES.filter(m=>m.track);
+const esc = s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safeUrl = u=>/^https:\/\/[^\s"'<>]+$/i.test(u||"")?u:"";
+const LS = {
+  get(k,d){try{const v=localStorage.getItem("ipc:"+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("ipc:"+k,JSON.stringify(v))}catch(e){}}
+};
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2200)}
+function readData(d){if(!d)return null;if(typeof d.data==="function")return d.data();if(d.data!==undefined)return d.data;if(d.value!==undefined)return d.value;return null}
+function snapDocs(s){if(!s)return[];const arr=Array.isArray(s)?s:(s.docs||s.items||s.results||[]);return arr.map(d=>({id:d.id??(d.ref&&d.ref.id)??(typeof d.path==="string"?d.path.split("/").pop():undefined),data:readData(d)||{}}))}
+
+const DEFAULT_SESSION = {id:"session-1",title:"Training IA · Introduction",date:"",deliv:""};
+function curSession(){return S.sessions.find(s=>s.id===S.sid)||DEFAULT_SESSION}
+function sKey(){return "s_"+S.sid}
+function myEntry(){if(S.online)return (S.myDoc&&S.myDoc[sKey()])||null;return (S.myDoc&&S.myDoc[sKey()])||LS.get("entry:"+S.sid,null)}
+/* remise à zéro pilotée par le formateur : meta/reset.at efface aussi les copies locales */
+function wipeLocal(){try{Object.keys(localStorage).forEach(k=>{if(/^ipc:(entry|note):/.test(k))localStorage.removeItem(k)})}catch(e){}}
+function isJoined(){return !!(S.myDoc&&S.myDoc[sKey()])}
+
+/* write queue: one write at a time on my crew doc */
+let wInflight=false,wPending=false;
+async function flushMine(){
+  if(!S.db||!S.uid)return;
+  if(wInflight){wPending=true;return}
+  wInflight=true;
+  try{await S.db.doc("crew/"+S.uid).set(S.myDoc);if(S.writeFailed){S.writeFailed=false;showNotice()}}
+  catch(e){S.writeFailed=true;showNotice();refreshControls()}
+  wInflight=false;
+  if(wPending){wPending=false;flushMine()}
+}
+/* accès en lecture seule : on le dit clairement au lieu de faire croire que c'est partagé */
+function showNotice(){
+  const n=$("#notice");if(!n)return;
+  const ro=S.booted&&(!S.db||!S.uid||S.canWrite===false||S.writeFailed);
+  n.hidden=!ro;
+  if(ro)n.innerHTML=`<b>Ton suivi n'est pas partagé avec le formateur</b>${!S.db||!S.uid?"Ouvre la page sur claude.ai, connecté(e) à ton compte.":"Ton accès à cette page est en lecture seule. Demande au formateur un accès qui permet d'utiliser la page, puis recharge-la."} Tes niveaux et tes notes restent enregistrés sur cet appareil et dans ton export.`;
+}
+function setMine(patch){
+  const cur=myEntry()||{levels:{},need:{},link:"",joinedAt:Date.now()};
+  const next={...cur,...patch,levels:{...cur.levels,...(patch.levels||{})},need:{...cur.need,...(patch.need||{})}};
+  S.myDoc={...S.myDoc,[sKey()]:next};
+  LS.set("entry:"+S.sid,next);
+  if(S.uid){upsertCrewLocal();}
+  refreshControls();renderCrew();renderRail();renderJournal();
+  flushMine();
+}
+function upsertCrewLocal(){
+  const i=S.crew.findIndex(c=>c.id===S.uid);
+  const rec={id:S.uid,data:S.myDoc};
+  if(i>=0)S.crew[i]=rec;else S.crew.push(rec);
+}
+
+/* notes (private) */
+const noteTimers={};
+function noteKey(mid){return S.sid+"__"+mid}
+function saveNote(mid,text){
+  S.notes[mid]=text;
+  LS.set("note:"+noteKey(mid),text);
+  const st=$("#ns-"+mid);if(st)st.textContent="Enregistrement…";
+  clearTimeout(noteTimers[mid]);
+  noteTimers[mid]=setTimeout(async()=>{
+    if(S.db&&S.uid){
+      try{await S.db.collection("data/users/"+S.uid).doc(noteKey(mid)).set({sid:S.sid,mid,text,updatedAt:Date.now()});if(st)st.textContent="Enregistré · privé"}
+      catch(e){if(st)st.textContent="Enregistré sur cet appareil"}
+    } else if(st) st.textContent="Enregistré sur cet appareil";
+    renderJournal();
+  },700);
+}
+async function loadNotes(){
+  S.notes={};
+  if(!S.online)tracked().forEach(m=>{const v=LS.get("note:"+noteKey(m.id),"");if(v)S.notes[m.id]=v});
+  if(S.db&&S.uid){
+    try{
+      const snap=await S.db.collection("data/users/"+S.uid).get();
+      snapDocs(snap).forEach(d=>{if(d.data&&d.data.sid===S.sid&&typeof d.data.text==="string")S.notes[d.data.mid]=d.data.text});
+    }catch(e){}
+  }
+  tracked().forEach(m=>{const ta=$("#note-"+m.id);if(ta&&document.activeElement!==ta)ta.value=S.notes[m.id]||""});
+  renderJournal();
+}
+
+/* =====================================================================
+   RENDU
+   ===================================================================== */
+function renderModules(){
+  let n=0;
+  $("#modules").innerHTML=MODULES.map(m=>{
+    const num=String(n++).padStart(2,"0");
+    const op=S.openMod===m.id;
+    return `<section class="mod ${op?"open":""}" id="m-${m.id}" aria-labelledby="h-${m.id}">
+      <div class="mod-head" data-toggle="${m.id}" role="button" tabindex="0" aria-expanded="${op}" aria-controls="b-${m.id}"><span class="num">${num} · ${esc(m.notion)}</span><h2 id="h-${m.id}">${esc(m.title)}</h2><p class="lede">${esc(m.lede)}</p><span class="chev" aria-hidden="true"></span></div>
+      <div class="mod-body" id="b-${m.id}">
+      <ul class="points">${m.points.map(p=>`<li><span>${p}</span></li>`).join("")}</ul>
+      ${m.visual||""}
+      ${m.detail?`<details class="more"><summary>Détails · aussi dans ton export</summary><div class="prose">${m.detail}</div></details>`:""}
+      ${m.tryIt?`<div class="try"><div class="try-top"><span class="wlabel">Essai · à toi de jouer</span><button class="copy" type="button" data-copy="${esc(m.tryIt)}">Copier</button></div><p>${esc(m.tryIt)}</p></div>`:""}
+      ${m.track?`<div class="cockpit" data-mid="${m.id}">
+        <div class="cockpit-row" role="group" aria-label="Mon niveau de compréhension">
+          <span class="wlabel" style="margin-right:4px">Mon niveau</span>
+          ${LEVELS.map(l=>`<button type="button" class="lvl" data-v="${l.v}" data-mid="${m.id}"><i class="dot l${l.v}"></i>${l.label}</button>`).join("")}
+          <button type="button" class="needbtn" data-mid="${m.id}" aria-pressed="false"><i class="dot need"></i>Besoin d'infos</button>
+        </div>
+        <label class="wlabel" for="note-${m.id}">Mes notes · privées</label>
+        <textarea class="note" id="note-${m.id}" data-mid="${m.id}" placeholder="Une idée, une question, un cas d'usage à tester…"></textarea>
+        <div class="note-meta"><span id="ns-${m.id}"></span><span>Visible par toi seul</span></div>
+      </div>`:""}
+      </div>
+    </section>`}).join("");
+  initWidgets();
+  applyFold();
+}
+
+/* affichage : Focus (une notion dépliée à la fois) ou Tout déplié */
+function applyFold(){
+  document.body.classList.toggle("fold",S.fold);
+  $$("[data-view]").forEach(b=>{const on=(b.dataset.view==="fold")===S.fold;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
+  $$(".mod").forEach(s=>{const op=s.id==="m-"+S.openMod;s.classList.toggle("open",op);const h=$(".mod-head",s);if(h)h.setAttribute("aria-expanded",S.fold?op:true)});
+}
+function openModule(id,scroll){
+  S.openMod=id;applyFold();updateMrail();
+  if(scroll&&id)requestAnimationFrame(()=>$("#m-"+id).scrollIntoView({behavior:"smooth",block:"start"}));
+}
+function openJournal(){const d=$("#jFold");if(d)d.open=true;requestAnimationFrame(()=>$("#journal").scrollIntoView({behavior:"smooth",block:"start"}))}
+
+function renderRail(){
+  const e=myEntry()||{levels:{},need:{}};
+  let n=0;
+  $("#rail").innerHTML=`<div class="rail-top"><span class="eyebrow">Plan de vol</span><div class="viewtog" role="group" aria-label="Affichage des notions"><button type="button" data-view="fold" title="Une notion dépliée à la fois">Focus</button><button type="button" data-view="all" title="Toutes les notions dépliées">Tout</button></div></div><ol class="flow">`+MODULES.map(m=>{
+    const num=String(n++).padStart(2,"0");const lv=e.levels?.[m.id];const nd=e.need?.[m.id];
+    return `<li class="fstep ${m.track?"":"free"}" data-id="${m.id}"><a href="#m-${m.id}" aria-label="${num} ${esc(m.title)} · ${esc(m.notion)}"><span class="node">${num}${m.track?`<i class="lv ${lv?"l"+lv:""} ${nd?"need":""}"></i>`:""}</span><span class="ftxt"><b>${esc(m.title)}</b><small>${esc(m.notion)}</small></span><span class="fshort">${esc(m.short)}</span></a></li>`}).join("")
+    +`</ol><div class="mrail"><button type="button" data-step="-1" aria-label="Notion précédente">‹</button><div class="mcur"><b id="mTitle"></b><small id="mSub"></small><select id="mSel" aria-label="Aller à la notion">${MODULES.map((m,i)=>`<option value="${m.id}">${String(i).padStart(2,"0")} · ${esc(m.title)}</option>`).join("")}</select></div><button type="button" data-step="1" aria-label="Notion suivante">›</button><div class="mprog"><i id="mProg"></i></div></div><div class="rail-extra"><a href="#crew" data-id="crew">Équipage</a><a href="#journal" data-id="journal">Journal de bord</a></div>`;
+  setActive(S.active||null);
+  applyFold();
+  observeRail();
+}
+function curIdx(){const id=S.fold?(S.openMod||S.active):S.active;const i=MODULES.findIndex(m=>m.id===id);return i<0?0:i}
+function updateMrail(){
+  const i=curIdx(),m=MODULES[i];if(!$("#mTitle"))return;
+  $("#mTitle").textContent=String(i).padStart(2,"0")+" · "+m.title;$("#mSub").textContent=m.notion;
+  $("#mSel").value=m.id;$("#mProg").style.width=(i/(MODULES.length-1)*100)+"%";
+  $$(".mrail [data-step]").forEach(b=>b.disabled=(+b.dataset.step<0&&i===0)||(+b.dataset.step>0&&i===MODULES.length-1));
+}
+function goModule(id){if(S.fold)openModule(id,true);else{S.active=id;$("#m-"+id).scrollIntoView({behavior:"smooth",block:"start"})}updateMrail()}
+function setActive(id){
+  S.active=id;
+  const idx=MODULES.findIndex(m=>m.id===id);
+  $$("#rail .fstep").forEach((li,i)=>{li.classList.toggle("on",i===idx);li.classList.toggle("done",idx>=0&&i<idx)});
+  $$("#rail .rail-extra a").forEach(a=>a.classList.toggle("on",a.dataset.id===id));
+  updateMrail();
+}
+let railObs;
+function observeRail(){
+  if(railObs)railObs.disconnect();
+  if(!("IntersectionObserver" in window))return;
+  railObs=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting)setActive(en.target.id.replace(/^m-/,""))})},{rootMargin:"-30% 0px -60% 0px"});
+  MODULES.forEach(m=>{const el=$("#m-"+m.id);if(el)railObs.observe(el)});
+  ["crew","journal"].forEach(id=>railObs.observe($("#"+id)));
+}
+
+function refreshControls(){
+  const e=myEntry()||{levels:{},need:{}};
+  $$(".lvl").forEach(b=>b.classList.toggle("on",e.levels?.[b.dataset.mid]==+b.dataset.v));
+  $$(".needbtn").forEach(b=>{const on=!!e.need?.[b.dataset.mid];b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)});
+  const ro=S.booted&&(!S.db||!S.uid||S.canWrite===false||S.writeFailed);
+  $("#joinBtn").textContent=ro?"Lecture seule":(isJoined()?"À bord ✓":"Rejoindre l'équipage");
+  $("#joinBtn").disabled=ro||isJoined();
+  const ml=$("#myLink");if(ml&&document.activeElement!==ml)ml.value=e.link||"";
+}
+
+function sessionCrew(){return S.crew.filter(c=>c.data&&c.data[sKey()])}
+async function resolveNames(ids){
+  if(!S.user||!ids.length)return;
+  try{
+    const ps=await S.user.profiles(ids);
+    ids.forEach(id=>{const p=ps&&(ps[id]||(Array.isArray(ps)?ps.find(x=>x.id===id):null));S.names[id]=(p&&p.name)||""});
+  }catch(e){}
+}
+async function renderCrew(){
+  const crew=sessionCrew();
+  $("#heroStat").innerHTML=`<b>${crew.length}</b> à bord`;
+  const ses=curSession();
+  const dl=safeUrl(ses.deliv);
+  $("#sessionDeliv").innerHTML=`<span class="wlabel">${esc(ses.title)}${ses.date?" · "+esc(ses.date):""}</span>`+(dl?`<a href="${esc(dl)}" target="_blank" rel="noopener">Ouvrir l'artefact de travail ↗</a>`:`<span class="muted">Lien vers l'artefact de travail à venir</span>`);
+  $$('[data-widget="sessionlink"]').forEach(el=>el.innerHTML=dl?`<span class="wlabel">Artefact de session</span><a href="${esc(dl)}" target="_blank" rel="noopener">Ouvrir l'artefact de travail ↗</a>`:`<span class="wlabel">Artefact de session</span><span class="muted">Le formateur ajoutera le lien ici.</span>`);
+  const mods=tracked();
+  // summary per module
+  $("#summary").innerHTML=mods.map(m=>{
+    const c={1:0,2:0,3:0};let need=0,tot=0;
+    crew.forEach(p=>{const e=p.data[sKey()];const v=e.levels?.[m.id];if(v){c[v]++;tot++}if(e.need?.[m.id])need++});
+    const w=v=>tot?(c[v]/tot*100):0;
+    return `<div class="sum"><span class="t" title="${esc(m.title)}">${esc(m.short)}</span><div class="stackbar"><i class="s3" style="width:${w(3)}%"></i><i class="s2" style="width:${w(2)}%"></i><i class="s1" style="width:${w(1)}%"></i></div><span class="c">${tot}/${crew.length} · ${need} infos +</span></div>`}).join("");
+  layoutSummary();
+  if(!S.db){
+    $("#matrixWrap").innerHTML=`<div class="empty">Le tableau d'équipage s'affiche quand la page est ouverte sur claude.ai avec ton compte. Tes niveaux et notes restent enregistrés sur cet appareil.</div>`;return;
+  }
+  if(!crew.length){
+    $("#matrixWrap").innerHTML=`<div class="empty">Personne à bord pour l'instant. Clique sur <b>Rejoindre l'équipage</b> en haut de page, ou indique ton niveau sur une notion.</div>`;return;
+  }
+  await resolveNames(crew.map(c=>c.id).filter(id=>!(id in S.names)));
+  const rows=crew.map(p=>{
+    const e=p.data[sKey()];const me=p.id===S.uid;const nm=(S.names[p.id]||"Participant")+(me?" (toi)":"");
+    const link=safeUrl(e.link);
+    return `<tr class="${me?"me":""}"><td>${esc(nm)}</td>${mods.map(m=>{const v=e.levels?.[m.id];const nd=e.need?.[m.id];return `<td><i class="dot ${v?"l"+v:""} ${nd?"need":""}" title="${esc(m.short)} : ${v?LEVELS.find(l=>l.v==v).label:"non renseigné"}${nd?" · besoin d'infos":""}"></i></td>`}).join("")}<td>${link?`<a href="${esc(link)}" target="_blank" rel="noopener">Résultat ↗</a>`:`<span class="muted">—</span>`}</td></tr>`}).join("");
+  $("#matrixWrap").innerHTML=`<div class="matrix"><table><thead><tr><th>Membre</th>${mods.map(m=>`<th>${esc(m.short)}</th>`).join("")}<th>Résultat</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+/* cartes du tableau de bord : rangées toujours complètes et équilibrées */
+function layoutSummary(){
+  const el=$("#summary");if(!el)return;
+  const n=el.children.length;if(!n)return;
+  const w=el.clientWidth||700,gap=10,minW=118;
+  const maxC=Math.max(1,Math.min(n,Math.floor((w+gap)/(minW+gap))));
+  let c=maxC;
+  for(let k=maxC;k>=Math.ceil(maxC/2);k--){if(n%k===0){c=k;break}}
+  if(n%c!==0)c=Math.ceil(n/Math.ceil(n/maxC));
+  el.style.gridTemplateColumns=`repeat(${c},minmax(0,1fr))`;
+}
+if("ResizeObserver" in window)new ResizeObserver(()=>layoutSummary()).observe($("#summary"));
+
+function renderSessions(){
+  const list=S.sessions.length?S.sessions:[DEFAULT_SESSION];
+  $("#sessionSel").innerHTML=list.map(s=>`<option value="${esc(s.id)}" ${s.id===S.sid?"selected":""}>${esc(s.title)}${s.date?" · "+esc(s.date):""}</option>`).join("");
+  const s=curSession();
+  if(document.activeElement!==$("#aTitle"))$("#aTitle").value=s.title||"";
+  if(document.activeElement!==$("#aDate"))$("#aDate").value=s.date||"";
+  if(document.activeElement!==$("#aDeliv"))$("#aDeliv").value=s.deliv||"";
+}
+
+function renderJournal(){
+  const e=myEntry()||{levels:{},need:{}};
+  const items=tracked().map(m=>{
+    const v=e.levels?.[m.id];const nd=e.need?.[m.id];const note=S.notes[m.id];
+    return `<div class="jitem"><b>${esc(m.short)}</b> <span class="muted" style="font-size:13px">· ${v?LEVELS.find(l=>l.v==v).label:"niveau non renseigné"}${nd?" · besoin d'infos":""}</span>${note?`<p>${esc(note)}</p>`:""}</div>`}).join("");
+  $("#jList").innerHTML=items;
+}
+
+/* =====================================================================
+   WIDGETS PÉDAGOGIQUES
+   ===================================================================== */
+function initWidgets(){
+  $$('[data-widget="nextword"]').forEach(initNextWord);
+  $$('[data-widget="tokens"]').forEach(initTokens);
+  $$('[data-widget="fleet"]').forEach(initFleet);
+  $$('[data-widget="ctxdemo"]').forEach(initCtx);
+  $$('[data-widget="effort"]').forEach(initEffort);
+  $$('[data-widget="asklist"]').forEach(el=>{el.innerHTML=ASK.map(q=>`<a href="#" data-copy="${esc(q)}" role="button"><div><span class="k">À demander</span><br>${esc(q)}</div><span class="copy">Copier</span></a>`).join("")});
+  $$('[data-widget="mylink"]').forEach(el=>{el.innerHTML=`<label class="wlabel" for="myLink" style="flex-basis:100%">Lien vers mon résultat (facultatif, visible par l'équipage)</label><input id="myLink" type="url" placeholder="https://claude.ai/…"><button class="btn" type="button" id="myLinkSave">Enregistrer</button>`});
+}
+
+function initNextWord(el){
+  const stages=[
+    {ctx:"Le",opts:[["chat",9],["jour",7],["plus",6],["monde",5],["temps",4]],note:"Presque aucun contexte : beaucoup de suites possibles, aucune ne domine."},
+    {ctx:"Ce matin, le",opts:[["soleil",16],["café",12],["train",9],["réveil",8],["chat",6]],note:"Un peu de contexte : les probabilités se resserrent."},
+    {ctx:"Avant la réunion de lundi avec la direction, j'ai préparé une",opts:[["présentation",36],["synthèse",24],["note",13],["liste",8],["démo",4]],note:"Contexte riche : une suite se détache nettement. C'est exactement ce que fait un bon prompt."}
+  ];
+  let i=0,pick=null;
+  el.innerHTML=`<div class="widget-top"><span class="wlabel">Démo · prédiction du mot suivant</span><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="chipbtn" type="button" data-a="gen">Générer</button><button class="chipbtn on" type="button" data-a="ctx">Ajouter du contexte</button></div></div>
+  <div class="nw-sentence" aria-live="polite"></div><div class="bars"></div><p class="muted nw-note" style="font-size:14px"></p><p class="muted" style="font-size:12px">Probabilités illustratives. Clique plusieurs fois sur « Générer » : le tirage varie.</p>`;
+  const draw=()=>{
+    const s=stages[i];
+    $(".nw-sentence",el).innerHTML=esc(s.ctx)+" "+(pick?`<span class="pick">${esc(pick)}</span>`:"")+`<span class="cur"></span>`;
+    $(".bars",el).innerHTML=s.opts.map(([w,p])=>`<div class="bar ${pick===w?"hit":""}"><span>${esc(w)}</span><div class="track"><div class="fill" data-w="${p*2.2}"></div></div><span class="pct">${p}%</span></div>`).join("");
+    $(".nw-note",el).textContent=s.note;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>$$(".fill",el).forEach(f=>f.style.width=Math.min(100,+f.dataset.w)+"%")));
+  };
+  el.addEventListener("click",ev=>{
+    const a=ev.target.closest("[data-a]")?.dataset.a;if(!a)return;
+    if(a==="ctx"){i=(i+1)%stages.length;pick=null;$('[data-a="ctx"]',el).textContent=i===stages.length-1?"Recommencer":"Ajouter du contexte"}
+    if(a==="gen"){const o=stages[i].opts;const t=o.reduce((s,x)=>s+x[1],0);let r=Math.random()*t;pick=o.find(x=>(r-=x[1])<0)[0]}
+    draw();
+  });
+  draw();
+}
+
+function tokenize(text){
+  const out=[];
+  const parts=text.match(/\s*[\p{L}\p{N}]+|\s*[^\s\p{L}\p{N}]|\s+/gu)||[];
+  parts.forEach(p=>{
+    const lead=p.match(/^\s*/)[0],core=p.slice(lead.length);
+    if(!core){return}
+    const isAcr=/^[A-Z]{2,}$/.test(core),accent=/[^\x00-\x7F]/.test(core);
+    let size=isAcr?2:(accent?3:(core.length<=6?6:4));
+    if(core.length<=size){out.push(lead+core);return}
+    let first=true;for(let k=0;k<core.length;k+=size){out.push((first?lead:"")+core.slice(k,k+size));first=false}
+  });
+  return out;
+}
+function initTokens(el){
+  const presets={"Phrase":"Bonjour, peux-tu résumer ce compte rendu en trois points ?","Jargon & acronymes":"Le PMO a validé les KPI du T3 avant le COMEX de vendredi en visio.","English":"Hello, could you summarize these meeting notes in three bullet points?"};
+  el.innerHTML=`<div class="widget-top"><span class="wlabel">Démo · compteur de tokens</span><div style="display:flex;gap:6px;flex-wrap:wrap">${Object.keys(presets).map((k,j)=>`<button class="chipbtn ${j===0?"on":""}" type="button" data-p="${esc(k)}">${esc(k)}</button>`).join("")}</div></div>
+  <label class="wlabel" for="tokIn" style="position:absolute;left:-9999px">Texte à découper</label>
+  <textarea class="tok-input" id="tokIn"></textarea><div class="tok-out" aria-hidden="true"></div>
+  <div class="kpis"><div class="kpi"><b class="k-t">0</b><span>tokens (estimés)</span></div><div class="kpi"><b class="k-w">0</b><span>mots</span></div><div class="kpi"><b class="k-r">0</b><span>tokens par mot</span></div></div>
+  <p class="muted" style="font-size:12px">Découpage approximatif à but pédagogique. Le vrai découpage dépend du modèle.</p>`;
+  const ta=$("#tokIn",el);
+  const run=()=>{const t=tokenize(ta.value);const w=(ta.value.match(/[\p{L}\p{N}]+/gu)||[]).length;
+    $(".tok-out",el).innerHTML=t.map((x,j)=>`<span style="animation-delay:${Math.min(j*12,400)}ms">${esc(x)}</span>`).join("");
+    $(".k-t",el).textContent=t.length;$(".k-w",el).textContent=w;$(".k-r",el).textContent=w?(t.length/w).toFixed(2):"0"};
+  ta.value=presets["Phrase"];run();
+  let deb;ta.addEventListener("input",()=>{clearTimeout(deb);deb=setTimeout(run,180)});
+  el.addEventListener("click",ev=>{const b=ev.target.closest("[data-p]");if(!b)return;$$("[data-p]",el).forEach(x=>x.classList.toggle("on",x===b));ta.value=presets[b.dataset.p];run()});
+}
+
+/* lien flotte × thinking : coût total = prix du token du modèle × tokens consommés (indices illustratifs) */
+const FLEET={ship:1,names:["Haiku","Sonnet","Opus","Fable"],price:[1,3,5,10],tok:[1,2,4,8],update:null};
+function initFleet(el){
+  const ships=[
+    {nm:"Haiku",cls:"Éclaireur",p:2,s:5,c:1,d:"Rapide et économique. Reformuler, trier, extraire des champs, traduire un court texte."},
+    {nm:"Sonnet",cls:"Frégate",p:3,s:4,c:2,d:"Le polyvalent du quotidien. Rédaction, synthèses, comptes rendus, analyses standard."},
+    {nm:"Opus",cls:"Croiseur",p:4,s:3,c:4,d:"Raisonnement complexe. Documents longs, analyses multi-étapes, arbitrages délicats."},
+    {nm:"Fable",cls:"Vaisseau amiral",p:5,s:2,c:5,d:"Le plus capable. Missions les plus exigeantes : problèmes ouverts, travaux longs et autonomes."}
+  ];
+  const pips=n=>`<span class="pips">${[1,2,3,4,5].map(k=>`<i class="${k<=n?"f":""}"></i>`).join("")}</span>`;
+  el.innerHTML=`<div class="widget-top"><span class="wlabel">La flotte · classes de modèles</span><span class="muted" style="font-size:12px">Indicatif</span></div>
+  <div class="fleet">${ships.map((s,j)=>`<button type="button" class="ship ${j===1?"on":""}" data-j="${j}"><span class="cls">${s.cls}</span><span class="nm">${s.nm}</span>
+  <span class="meter">Puissance${pips(s.p)}</span><span class="meter">Vitesse${pips(s.s)}</span><span class="meter">Coût${pips(s.c)}</span></button>`).join("")}</div>
+  <p class="ship-detail"></p>`;
+  FLEET.names=ships.map(s=>s.nm);
+  const show=j=>{FLEET.ship=j;$$(".ship",el).forEach(b=>b.classList.toggle("on",+b.dataset.j===j));$(".ship-detail",el).innerHTML=`<b>${ships[j].nm}</b> · ${esc(ships[j].d)}`;FLEET.update&&FLEET.update()};
+  el.addEventListener("click",ev=>{const b=ev.target.closest(".ship");if(b)show(+b.dataset.j)});
+  show(1);
+}
+
+function initCtx(el){
+  const st=[
+    {k:"À froid",c:"Rien d'autre que la demande.",o:"Bonjour à tous, je vous informe que l'atelier est reporté à une date ultérieure. Merci de votre compréhension.",v:"Correct mais générique : il comble les trous avec du plausible.",q:1,t:1},
+    {k:"+ Contexte de la tâche",c:"Atelier de jeudi 14 h, reporté au mardi suivant, même heure. Cause : intervenant indisponible. Invitation mise à jour demain.",o:"Bonjour à tous, l'atelier prévu jeudi à 14 h est reporté au mardi suivant, même heure : notre intervenant n'est pas disponible. L'invitation sera mise à jour d'ici demain.",v:"Spécifique et exact : les faits viennent de toi, pas de son imagination.",q:3,t:2},
+    {k:"+ about_me",c:"En plus : ton ton habituel (direct, chaleureux), l'anglais pour les messages d'équipe, format court.",o:"Hi all, quick heads-up: Thursday's 2 pm workshop moves to next Tuesday, same time, as our speaker is unavailable. Updated invite coming tomorrow. Thanks for your flexibility!",v:"Spécifique, dans ton style, prêt à envoyer après relecture.",q:5,t:2},
+    {k:"+ Tout le dossier",c:"En plus : 40 pages d'historique de projet sans rapport avec le message.",o:"(Une réponse proche de la précédente, parfois alourdie de détails hors sujet repris du dossier.)",v:"Pas mieux, plus lent, plus cher, et l'essentiel risque d'être noyé.",q:4,t:5}
+  ];
+  const pips=n=>`<span class="pips">${[1,2,3,4,5].map(k=>`<i class="${k<=n?"f":""}"></i>`).join("")}</span>`;
+  el.innerHTML=`<div class="widget-top"><span class="wlabel">Démo · même demande, contexte différent</span><span class="muted" style="font-size:12px">Illustratif</span></div>
+  <p class="mono" style="font-size:14px">« Rédige un message pour annoncer le report de l'atelier. »</p>
+  <div style="display:flex;gap:6px;flex-wrap:wrap" role="group" aria-label="Niveau de contexte">${st.map((s,j)=>`<button class="chipbtn ${j===0?"on":""}" type="button" data-c="${j}">${esc(s.k)}</button>`).join("")}</div>
+  <div class="ctx-in"><span class="wlabel">Contexte fourni</span><p class="ctx-c" style="font-size:14px"></p></div>
+  <div class="ctx-out" aria-live="polite"></div>
+  <div class="kpis"><span class="meter" style="grid-template-columns:110px 1fr">Qualité<span class="ctx-q"></span></span><span class="meter" style="grid-template-columns:110px 1fr">Tokens consommés<span class="ctx-t"></span></span></div>
+  <p class="ctx-v" style="font-size:15px"></p>`;
+  const show=j=>{const s=st[j];$$("[data-c]",el).forEach(b=>b.classList.toggle("on",+b.dataset.c===j));
+    $(".ctx-c",el).textContent=s.c;const o=$(".ctx-out",el);o.textContent=s.o;o.style.animation="none";void o.offsetWidth;o.style.animation="";
+    $(".ctx-q",el).innerHTML=pips(s.q);$(".ctx-t",el).innerHTML=pips(s.t);$(".ctx-v",el).innerHTML=`<b>Verdict</b> · ${esc(s.v)}`};
+  el.addEventListener("click",ev=>{const b=ev.target.closest("[data-c]");if(b)show(+b.dataset.c)});
+  show(0);
+}
+
+function initEffort(el){
+  const lv=[
+    {k:"Low",t:"Réponse directe",d:"Reformuler, répondre à une question factuelle, corriger un texte.",n:2},
+    {k:"Medium",t:"Réflexion courte",d:"Rédaction structurée, synthèse de documents, comparaison simple.",n:6},
+    {k:"High",t:"Réflexion approfondie",d:"Analyse d'impact, plan d'action, recommandation argumentée.",n:14},
+    {k:"Max",t:"Réflexion maximale",d:"Problèmes difficiles à plusieurs étapes, où une erreur coûte cher.",n:28}
+  ];
+  el.innerHTML=`<div class="widget-top"><span class="wlabel">Le thinking · niveau de réflexion</span></div>
+  <div class="effort"><label for="effortR" style="position:absolute;left:-9999px">Niveau de réflexion</label><input type="range" id="effortR" min="0" max="3" step="1" value="1">
+  <div class="effort-scale">${lv.map(l=>`<span>${l.k}</span>`).join("")}</div>
+  <p class="ef-txt" style="font-size:15px"></p>
+  <div><span class="wlabel">Tokens de réflexion consommés</span><div class="trail" style="margin-top:6px"></div></div>
+  <div class="total"><span class="wlabel">Coût total · <span class="t-combo"></span></span><div class="tbar"><i></i></div><span class="t-val"></span></div>
+  <p class="muted" style="font-size:12px">Coût total = prix du token du modèle × tokens consommés. Indice illustratif, base Haiku + Low = ×1. Choisis un vaisseau au-dessus, puis fais varier la réflexion.</p></div>`;
+  const r=$("#effortR",el);
+  const total=()=>{const e=+r.value,s=FLEET.ship,idx=FLEET.price[s]*FLEET.tok[e],max=FLEET.price[3]*FLEET.tok[3];
+    $(".t-combo",el).textContent=`${FLEET.names[s]} + ${lv[e].k}`;
+    $(".tbar i",el).style.width=(Math.log(idx+1)/Math.log(max+1)*100)+"%";
+    $(".t-val",el).textContent="×"+idx};
+  FLEET.update=total;
+  const draw=()=>{const l=lv[+r.value];$(".ef-txt",el).innerHTML=`<b>${l.t}</b> · ${esc(l.d)}`;$(".trail",el).innerHTML=Array.from({length:l.n},(_,j)=>`<i style="animation-delay:${j*25}ms"></i>`).join("");total()};
+  r.addEventListener("input",draw);draw();
+}
+
+/* =====================================================================
+   EXPORT
+   ===================================================================== */
+function plainFromHtml(html){
+  const d=document.createElement("div");d.innerHTML=html;
+  d.querySelectorAll("[data-widget]").forEach(w=>{const p=w.getAttribute("data-print");w.replaceWith(Object.assign(document.createElement("p"),{className:"demo",textContent:p?("▸ "+p):""}))});
+  return d.innerHTML;
+}
+function buildHtmlExport(){
+  const e=myEntry()||{levels:{},need:{}};const ses=curSession();const today=new Date().toLocaleDateString("fr-CA");
+  let n=0;
+  const body=MODULES.map(m=>{const num=String(n++).padStart(2,"0");const v=e.levels?.[m.id];const note=S.notes[m.id];
+    return `<section><p class="num">${num} · ${esc(m.notion)}</p><h2>${esc(m.title)}</h2><p class="lede">${esc(m.lede)}</p>
+    <ul class="points">${m.points.map(p=>`<li>${p}</li>`).join("")}</ul>
+    ${plainFromHtml(m.visual||"")}
+    ${m.detail?`<h3>Pour aller plus loin</h3>${m.detail}`:""}
+    ${m.tryIt?`<p class="try"><b>Essaie dans Claude :</b> ${esc(m.tryIt)}</p>`:""}
+    ${m.track?`<div class="me"><b>Mon niveau :</b> ${v?LEVELS.find(l=>l.v==v).label:"non renseigné"}${e.need?.[m.id]?" · besoin d'infos":""}${note?`<p class="mynote"><b>Mes notes :</b><br>${esc(note).replace(/\n/g,"<br>")}</p>`:""}</div>`:""}</section>`}).join("");
+  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Premier contact · Mon dossier</title>
+<style>body{font-family:"IBM Plex Sans",Segoe UI,system-ui,sans-serif;color:#121A2B;background:#fff;max-width:780px;margin:0 auto;padding:40px 20px;line-height:1.55;font-size:15px}
+header{border-bottom:2px solid #94681A;padding-bottom:16px;margin-bottom:24px}header p{color:#596479;margin:4px 0}
+h1{font-size:28px;letter-spacing:.04em;text-transform:uppercase;margin:6px 0}h2{font-size:21px;margin:4px 0 6px}h3{font-size:15px;margin:16px 0 6px}
+section{border-top:1px solid #D6DCE7;padding:20px 0;break-inside:avoid-page}.num{font-family:Consolas,monospace;color:#94681A;font-size:12px;margin:0}
+.lede{color:#596479;font-size:16px}table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}th,td{border:1px solid #D6DCE7;padding:6px 8px;text-align:left;vertical-align:top}th{background:#EAEEF5}
+pre{background:#F3F5F9;border:1px solid #D6DCE7;padding:12px;font-size:12px;white-space:pre-wrap}.callout{border-left:3px solid #94681A;background:#F8F3E8;padding:10px 14px;margin:10px 0}
+.eyebrow,.k,.tag,.wlabel{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#94681A;display:block}.tile{border:1px solid #D6DCE7;border-radius:6px;padding:10px 12px;margin:6px 0}.tile h4{margin:0 0 4px}
+.grid2,.grid3,.next,.ba{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.layer{border:1px solid #D6DCE7;padding:8px 12px;margin:4px 0;display:flex;gap:10px;justify-content:space-between}.layer small{display:block;color:#596479}.layer .who,.layer .i{font-size:11px;color:#596479;font-family:Consolas,monospace}
+.pipe{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.step{border:1px solid #D6DCE7;padding:6px 10px;border-radius:6px}.step small{display:block;color:#596479}.gate{font-size:10px;color:#23896C;text-transform:uppercase}
+.src a{display:block;border:1px solid #D6DCE7;padding:8px 12px;margin:4px 0;color:#121A2B;text-decoration:none}.src small{display:block;color:#596479}.demo{color:#596479;font-style:italic}
+.try{background:#F3F5F9;padding:10px 12px;font-size:14px}.me{border:1px dashed #94681A;padding:10px 12px;margin-top:10px;font-size:14px}.mynote{white-space:normal}.muted{color:#596479}.mono{font-family:Consolas,monospace}
+[data-widget="sessionlink"],[data-widget="mylink"],[data-widget="asklist"]{display:none}
+.points li{margin:4px 0}.modes{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.mode{border:1px solid #D6DCE7;border-radius:6px;padding:6px 12px}.mode.on{border-color:#94681A}.mode b{display:block}
+.checklist{border:1px solid #D6DCE7;border-radius:6px;padding:10px 14px;margin:10px 0}.checklist ul{list-style:none;padding:0;margin:6px 0 0}.checklist li{margin:6px 0}.checklist li span{display:inline-block;vertical-align:top}.checklist li small{display:block;color:#596479}.checklist li::before{content:"☐  ";color:#94681A}
+@media print{body{padding:0}a{color:#121A2B}}</style></head><body>
+<header><p class="eyebrow">Training IA</p><h1>Premier contact</h1><p>${esc(ses.title)}${ses.date?" · "+esc(ses.date):""} · exporté le ${today}</p>
+${safeUrl(ses.deliv)?`<p>Artefact de session : <a href="${esc(ses.deliv)}">${esc(ses.deliv)}</a></p>`:""}${safeUrl(e.link)?`<p>Mon résultat d'atelier : <a href="${esc(e.link)}">${esc(e.link)}</a></p>`:""}
+<p class="muted">Astuce : ouvre ce fichier dans ton navigateur puis Ctrl+P pour l'imprimer ou l'enregistrer en PDF.</p></header>
+${body}
+<section><h2>Questions à poser à Claude</h2><ul>${ASK.map(q=>`<li>${esc(q)}</li>`).join("")}</ul></section>
+</body></html>`;
+}
+function buildMd(){
+  const e=myEntry()||{levels:{},need:{}};const ses=curSession();
+  let n=0;let md=`# Premier contact · Mon dossier de training\n\n${ses.title}${ses.date?" · "+ses.date:""} · exporté le ${new Date().toLocaleDateString("fr-CA")}\n`;
+  if(safeUrl(ses.deliv))md+=`\nArtefact de session : ${ses.deliv}\n`;
+  if(safeUrl(e.link))md+=`Mon résultat d'atelier : ${e.link}\n`;
+  const txt=h=>{const d=document.createElement("div");d.innerHTML=h||"";return [...d.querySelectorAll("p,pre,li")].filter(x=>!x.closest("[data-widget]")&&!(x.tagName==="P"&&x.closest("li"))).map(x=>x.tagName==="PRE"?"```\n"+x.textContent+"\n```":(x.tagName==="LI"?"- ":"")+(x.querySelector("small")?(x.querySelector("b").textContent+" : "+x.querySelector("small").textContent):x.textContent).replace(/\s+/g," ").trim()).filter(Boolean).join("\n")};
+  MODULES.forEach(m=>{const num=String(n++).padStart(2,"0");const v=e.levels?.[m.id];
+    md+=`\n## ${num} · ${m.title} (${m.notion})\n\n${m.lede}\n\n${m.points.map(p=>"- "+p.replace(/<[^>]+>/g,"")).join("\n")}\n`;
+    const cl=m.visual&&m.visual.includes("checklist")?txt(m.visual.slice(m.visual.indexOf('<div class="checklist"'),m.visual.indexOf("</ul>")+5)):"";
+    if(cl)md+=`\n**À ne pas oublier dans un prompt**\n${cl}\n`;
+    if(m.detail)md+=`\n**Pour aller plus loin**\n\n${txt(m.detail)}\n`;
+    if(m.tryIt)md+=`\n**Essaie dans Claude :** ${m.tryIt}\n`;
+    if(m.track){md+=`\n**Mon niveau :** ${v?LEVELS.find(l=>l.v==v).label:"non renseigné"}${e.need?.[m.id]?" · besoin d'infos":""}\n`;if(S.notes[m.id])md+=`\n**Mes notes :**\n${S.notes[m.id]}\n`}
+  });
+  md+=`\n## Pour aller plus loin\n- Claude 101 : https://anthropic.skilljar.com/claude-101\n- Introduction to Claude Cowork : https://anthropic.skilljar.com/introduction-to-claude-cowork\n- AI Fluency: Framework & Foundations : https://anthropic.skilljar.com/ai-fluency-framework-foundations\n- AI Capabilities and Limitations : https://anthropic.skilljar.com/ai-capabilities-and-limitations\n- Introduction to Agent Skills : https://anthropic.skilljar.com/introduction-to-agent-skills\n- Prompt engineering overview : https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview\n`;
+  return md;
+}
+let DL=null;
+async function download(filename,data,mime){
+  if(!window.claude){try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:mime}));a.download=filename;document.body.appendChild(a);a.click();a.remove();toast("Fichier téléchargé");return}catch(e){}}
+  if(DL){
+    try{await DL.save({filename,data});toast("Fichier proposé au téléchargement");return}
+    catch(e){try{await DL.save({filename,data:new Blob([data],{type:mime})});toast("Fichier proposé au téléchargement");return}catch(e2){if(e2&&/declin|cancel|denied/i.test(String(e2.code||e2.message)))return}}
+  }
+  showModal(filename,data);
+}
+function showModal(filename,data){
+  const m=document.createElement("div");m.className="modal";
+  m.innerHTML=`<div class="modal-box" role="dialog" aria-label="Export"><b>Téléchargement indisponible ici</b><p class="muted" style="font-size:14px">Copie le contenu ci-dessous et enregistre-le sous <span class="mono">${esc(filename)}</span>.</p><textarea readonly id="mTa"></textarea><div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn" type="button" data-x>Fermer</button><button class="btn primary" type="button" data-c>Copier</button></div></div>`;
+  document.body.appendChild(m);$("#mTa",m).value=data;
+  m.addEventListener("click",async ev=>{if(ev.target===m||ev.target.closest("[data-x]"))m.remove();if(ev.target.closest("[data-c]")){await copyText(data,$("#mTa",m))}});
+}
+async function copyText(t,fallbackEl){
+  try{await navigator.clipboard.writeText(t);toast("Copié")}
+  catch(e){if(fallbackEl){fallbackEl.focus();fallbackEl.select()}toast("Sélectionne le texte puis Ctrl+C")}
+}
+const stamp=()=>new Date().toISOString().slice(0,10);
+
+/* =====================================================================
+   ÉVÉNEMENTS
+   ===================================================================== */
+document.addEventListener("click",async ev=>{
+  const cp=ev.target.closest("[data-copy]");
+  if(cp){ev.preventDefault();copyText(cp.dataset.copy);return}
+  const lvl=ev.target.closest(".lvl");
+  if(lvl){const cur=myEntry()?.levels?.[lvl.dataset.mid];const v=+lvl.dataset.v;setMine({levels:{[lvl.dataset.mid]:cur===v?0:v}});return}
+  const nd=ev.target.closest(".needbtn");
+  if(nd){const cur=!!myEntry()?.need?.[nd.dataset.mid];setMine({need:{[nd.dataset.mid]:!cur}});return}
+  if(ev.target.closest("#myLinkSave")){const v=$("#myLink").value.trim();if(v&&!safeUrl(v)){toast("Le lien doit commencer par https://");return}setMine({link:v});toast("Lien enregistré");return}
+});
+document.addEventListener("input",ev=>{if(ev.target.classList.contains("note"))saveNote(ev.target.dataset.mid,ev.target.value)});
+$("#joinBtn").addEventListener("click",()=>{setMine({});toast(S.db?"Bienvenue à bord":"Enregistré sur cet appareil. Ouvre la page sur claude.ai pour apparaître dans l'équipage.")});
+$("#exportBtn").addEventListener("click",openJournal);
+document.addEventListener("click",ev=>{
+  const st=ev.target.closest(".mrail [data-step]");
+  if(st){const i=Math.max(0,Math.min(MODULES.length-1,curIdx()+(+st.dataset.step)));goModule(MODULES[i].id);return}
+  const v=ev.target.closest("[data-view]");
+  if(v){S.fold=v.dataset.view==="fold";LS.set("fold",S.fold);applyFold();return}
+  const a=ev.target.closest("#rail a[href^='#']");
+  if(a){const id=a.getAttribute("href").slice(1);
+    if(id==="journal"){ev.preventDefault();openJournal();return}
+    if(id.startsWith("m-")&&S.fold){ev.preventDefault();openModule(id.slice(2),true);return}}
+  const h=ev.target.closest(".mod-head[data-toggle]");
+  if(h&&S.fold){const id=h.dataset.toggle;openModule(S.openMod===id?null:id,S.openMod!==id)}
+});
+document.addEventListener("change",ev=>{if(ev.target.id==="mSel")goModule(ev.target.value)});
+document.addEventListener("keydown",ev=>{
+  const h=ev.target.closest&&ev.target.closest(".mod-head[data-toggle]");
+  if(h&&S.fold&&(ev.key==="Enter"||ev.key===" ")){ev.preventDefault();h.click()}
+});
+$("#dlHtml").addEventListener("click",()=>download(`premier-contact_dossier_${stamp()}.html`,buildHtmlExport(),"text/html"));
+$("#dlMd").addEventListener("click",()=>download(`premier-contact_dossier_${stamp()}.md`,buildMd(),"text/markdown"));
+$("#cpMd").addEventListener("click",()=>copyText(buildMd()));
+$("#sessionSel").addEventListener("change",async e=>{S.sid=e.target.value;LS.set("sid",S.sid);renderSessions();refreshControls();renderRail();renderCrew();await loadNotes()});
+$("#aSave").addEventListener("click",async()=>{
+  if(!S.db)return;const d=$("#aDeliv").value.trim();if(d&&!safeUrl(d)){toast("Le lien doit commencer par https://");return}
+  const s={...curSession(),title:$("#aTitle").value.trim()||curSession().title,date:$("#aDate").value.trim(),deliv:d};
+  try{await S.db.doc("sessions/"+S.sid).set({title:s.title,date:s.date,deliv:s.deliv,createdAt:s.createdAt||Date.now()});toast("Session enregistrée")}catch(e){toast("Enregistrement refusé")}
+});
+$("#aCreate").addEventListener("click",async()=>{
+  if(!S.db)return;const t=$("#aNew").value.trim();if(!t){toast("Donne un titre à la nouvelle session");return}
+  const id="s-"+Date.now().toString(36);
+  try{await S.db.doc("sessions/"+id).set({title:t,date:"",deliv:"",createdAt:Date.now()});S.sid=id;LS.set("sid",id);$("#aNew").value="";toast("Session créée");}catch(e){toast("Création refusée")}
+});
+
+/* =====================================================================
+   CIEL ÉTOILÉ (hero)
+   ===================================================================== */
+(function stars(){
+  const c=$("#stars"),x=c.getContext("2d");let W,H,pts=[],run=true,vis=true;
+  const still=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function size(){const r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);W=r.width;H=r.height;c.width=W*d;c.height=H*d;x.setTransform(d,0,0,d,0,0);
+    pts=Array.from({length:Math.round(W*H/5200)},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random(),t:Math.random()*6.28}))}
+  function frame(){x.clearRect(0,0,W,H);pts.forEach(p=>{if(!still){p.x-=.04+p.z*.18;p.t+=.012;if(p.x<-2)p.x=W+2}
+    const a=.25+p.z*.55+(still?0:Math.sin(p.t)*.15);x.fillStyle=`rgba(233,237,245,${a})`;const s=.5+p.z*1.2;x.fillRect(p.x,p.y,s,s)});
+    if(!still&&vis)requestAnimationFrame(frame)}
+  size();frame();addEventListener("resize",()=>{size();if(still)frame()});
+  if("IntersectionObserver" in window)new IntersectionObserver(([e])=>{const was=vis;vis=e.isIntersecting;if(vis&&!was&&!still)frame()}).observe(c);
+})();
+
+/* =====================================================================
+   DÉMARRAGE
+   ===================================================================== */
+S.sid=LS.get("sid",DEFAULT_SESSION.id);
+S.fold=LS.get("fold",true);S.openMod="brief";
+renderModules();renderSessions();renderRail();refreshControls();renderCrew();loadNotes();
+
+(async function boot(){
+  if(!window.claude||!window.claude.use){document.body.classList.add("solo");return;}
+  const [db,user,dl]=await Promise.all([claude.use("db").catch(()=>null),claude.use("user").catch(()=>null),claude.use("downloads").catch(()=>null)]);
+  S.db=db;S.user=user;DL=dl;
+  if(user){try{S.uid=await user.id()}catch(e){}try{S.canEdit=!!(await user.isOwner())}catch(e){}}
+  $("#admin").hidden=!(S.db&&S.canEdit);
+  if(!S.db){S.booted=true;showNotice();refreshControls();renderCrew();return}
+  const onSessions=snap=>{
+    S.sessions=snapDocs(snap).map(d=>({id:d.id,...d.data})).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+    if(S.sessions.length&&!S.sessions.find(s=>s.id===S.sid)){S.sid=S.sessions[S.sessions.length-1].id;LS.set("sid",S.sid);loadNotes()}
+    renderSessions();refreshControls();renderRail();renderCrew();renderJournal();
+  };
+  const onCrew=snap=>{
+    S.crew=snapDocs(snap);
+    const mine=S.crew.find(c=>c.id===S.uid);
+    if(mine&&!wInflight&&!wPending)S.myDoc=mine.data||{};
+    refreshControls();renderRail();renderCrew();renderJournal();
+  };
+  try{const col=db.collection("sessions");if(col.onSnapshot)col.onSnapshot(onSessions);else onSessions(await col.get())}catch(e){}
+  try{const col=db.collection("crew");if(col.onSnapshot)col.onSnapshot(onCrew);else onCrew(await col.get())}catch(e){}
+  if(S.uid){try{const d=await db.doc("crew/"+S.uid).get();const v=readData(d);S.myDoc=v||{}}catch(e){}}
+  if(S.uid)S.online=true;
+  if(user){try{const c=await user.can("data.write");if(c===false)S.canWrite=false}catch(e){}}
+  S.booted=true;showNotice();
+  try{const r=readData(await db.doc("meta/reset").get());if(r&&r.at&&r.at>LS.get("resetSeen",0)){wipeLocal();LS.set("resetSeen",r.at)}}catch(e){}
+  if(S.online){tracked().forEach(m=>{const ta=$("#note-"+m.id);if(ta&&document.activeElement!==ta)ta.value=""})}
+  refreshControls();renderRail();renderCrew();loadNotes();
+})();
+</script>
+
+</body>
+</html>
